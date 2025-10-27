@@ -4,12 +4,12 @@ const openReadmeInEditor = () => fetch('/__open-in-editor?file=README.md')
 
 const items= [
 {
-name:"test",
-age:1
+Name:"Lili",
+age:90
 },
 {
-name:"test2",
-age:2
+Name:"Leonie",
+age:99
 }
 ]
 </script>
