@@ -23,9 +23,6 @@ age:2
         </tr>
         </thead>
         <tbody>
-        <tr v-if="items.length === 0">
-          <td colspan="2">No products yet</td>
-        </tr>
         <tr v-for="item in items" :key="item.id">
           <td>{{item.name}}</td>
           <td>{{item.age}}</td>
