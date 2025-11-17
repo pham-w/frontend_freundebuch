@@ -4,6 +4,7 @@ const openReadmeInEditor = () => fetch('/__open-in-editor?file=README.md')
 
 const items= [
 {
+id:1,
 name:"Lilie",
 age:90,
 geburtsdatum:"01.01.2000",
@@ -13,6 +14,7 @@ favFood:"pizza",
 dreamJob:"astronaut"
 },
 {
+id:2,
 name:"Liliane",
 age:99,
 geburtsdatum:"02.02.2002",
@@ -46,15 +48,6 @@ dreamJob:"arzt"
           <td>{{item.hobby}}</td>
           <td>{{item.favFood}}</td>
           <td>{{item.dreamJob}}</td>
-        </tr>
-        <tr>
-          <td>{{ nameField }}</td>
-          <td>{{ ageField }}</td>
-          <td>{{ geburtsdatumField }}</td>
-          <td>{{ favColorField }}</td>
-          <td>{{ hobbyField }}</td>
-          <td>{{ favFoodField }}</td>
-          <td>{{ dreamJobField }}</td>
         </tr>
         </tbody>
       </table>
