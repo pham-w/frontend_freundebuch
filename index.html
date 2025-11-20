@@ -1,91 +1,139 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Mein Freundebuch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            sans-serif;
+            background: #e5edf7;
+        }
+        header {
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 16px;
+        }
+        .info {
+            margin-bottom: 12px;
+            color: #4b5563;
+            font-size: 14px;
+        }
+        .cards {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .card {
+            background: #fffdf8;
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            border: 1px solid #e5e7eb;
+        }
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+        .row {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+        .label {
+            color: #6b7280;
+            margin-right: 4px;
+        }
+        .value {
+            font-weight: 600;
+        }
+        .error {
+            color: #b91c1c;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<header>Mein Freundebuch (Frontend → GET /seite)</header>
+
+<div class="container">
+    <p class="info" id="status">Lade Daten aus dem Backend …</p>
+    <div class="cards" id="profiles"></div>
+    <p class="error" id="error" style="display: none"></p>
+</div>
+
 <script>
-    const el = (t,a={},h='')=>{
-        const n=document.createElement(t);
-        Object.entries(a).forEach(([k,v])=>n.setAttribute(k,v));
-        if(h) n.innerHTML=h;
-        return n;
-    };
+    const profilesEl = document.getElementById("profiles");
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
 
-    const fmtDate = iso => {
-        if(!iso) return "";
-        const [y,m,d] = iso.split("-");
+    function formatDate(iso) {
+        if (!iso) return "";
+        const [y, m, d] = iso.split("-");
         return `${d}.${m}.${y}`;
-    };
+    }
 
-    const book=document.getElementById('book');
-    const prevBtn=document.getElementById('prevBtn');
-    const nextBtn=document.getElementById('nextBtn');
-    const hotLeft=document.getElementById('hotLeft');
-    const hotRight=document.getElementById('hotRight');
-    const cover=document.getElementById('cover');
+    function renderProfiles(list) {
+        profilesEl.innerHTML = "";
+        if (!Array.isArray(list) || list.length === 0) {
+            statusEl.textContent = "Keine Einträge gefunden.";
+            return;
+        }
+        statusEl.textContent = `Anzahl Einträge: ${list.length}`;
 
-    let pages=[];
-    let pageIndex=-1; // -1 = Cover
-
-    function setState(){
-        const coverVisible = (pageIndex < 0);
-        cover.style.display = coverVisible ? 'flex' : 'none';
-
-        pages.forEach((p,i)=>{
-            p.style.display = coverVisible ? 'none' : 'block';
-            p.classList.toggle('flipped', i < pageIndex);
+        list.forEach((p) => {
+            const card = document.createElement("article");
+            card.className = "card";
+            card.innerHTML = `
+            <h2>${p.name ?? ""}</h2>
+            <div class="row"><span class="label">Alter:</span><span class="value">${
+                p.age ?? ""
+            }</span></div>
+            <div class="row"><span class="label">Geburtsdatum:</span><span class="value">${formatDate(
+                p.geburtsdatum
+            )}</span></div>
+            <div class="row"><span class="label">Lieblingsfarbe:</span><span class="value">${
+                p.favColor ?? ""
+            }</span></div>
+            <div class="row"><span class="label">Hobby:</span><span class="value">${
+                p.hobby ?? ""
+            }</span></div>
+            <div class="row"><span class="label">Lieblingsessen:</span><span class="value">${
+                p.favFood ?? ""
+            }</span></div>
+            <div class="row"><span class="label">Traumberuf:</span><span class="value">${
+                p.dreamJob ?? ""
+            }</span></div>
+          `;
+            profilesEl.appendChild(card);
         });
-
-        prevBtn.disabled = (pageIndex < 0);
-        nextBtn.disabled = (pageIndex >= pages.length);
     }
 
-    function goNext(){ if(pageIndex < pages.length){ pageIndex++; setState(); } }
-    function goPrev(){ if(pageIndex >= 0){ pageIndex--; setState(); } }
-
-    prevBtn.onclick = goPrev;
-    nextBtn.onclick = goNext;
-    hotLeft.onclick = goPrev;
-    hotRight.onclick = goNext;
-
-    window.onkeydown = e => {
-        if(e.key === "ArrowRight") goNext();
-        if(e.key === "ArrowLeft") goPrev();
-    };
-
-    function makePage(person){
-        const html = `
-      <div class="kicker">Profil</div>
-      <h2 class="title">${person.name ?? ""}</h2>
-
-      <div class="grid">
-        <div><div class="label">Alter</div><div class="value">${person.age ?? ""}</div></div>
-        <div><div class="label">Geburtsdatum</div><div class="value">${fmtDate(person.geburtsdatum)}</div></div>
-        <div><div class="label">Lieblingsfarbe</div><div class="value">${person.favColor ?? ""}</div></div>
-        <div><div class="label">Hobby</div><div class="value">${person.hobby ?? ""}</div></div>
-        <div><div class="label">Lieblingsessen</div><div class="value">${person.favFood ?? ""}</div></div>
-        <div><div class="label">Traumberuf</div><div class="value">${person.dreamJob ?? ""}</div></div>
-      </div>
-      <div class="footer">Seite</div>
-    `;
-        const p = el("section", { class: "page" }, html);
-        p.style.zIndex = 1000 - pages.length;
-        return p;
-    }
-
-    // 🔥 Daten vom Backend holen
+    // 👉 hier wird die GET-Route deines Backends aufgerufen
     fetch("https://webtech-projekt-1-p0l3.onrender.com/seite")
-        .then(r => {
-            if(!r.ok) throw new Error("HTTP " + r.status);
-            return r.json();
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+            }
+            return res.json();
         })
-        .then(list => {
-            if(!Array.isArray(list)) list=[list];
-            list.forEach(person => {
-                const page = makePage(person);
-                book.appendChild(page);
-                pages.push(page);
-            });
-            pageIndex = -1;
-            setState();
+        .then((data) => {
+            renderProfiles(data);
         })
-        .catch(err => {
+        .catch((err) => {
             console.error(err);
-            alert("Fehler beim Laden der Daten: " + err.message);
+            statusEl.textContent = "Fehler beim Laden der Daten.";
+            errorEl.style.display = "block";
+            errorEl.textContent = err.message;
         });
 </script>
+</body>
+</html>
