@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* keine Logik nötig */
+
 </script>
 
 <template>
@@ -36,6 +36,20 @@
       </filter>
     </defs>
 
+    <!-- ⭕ Kreis-Clip für Glitzer -->
+    <clipPath id="circleClip">
+      <circle cx="50" cy="50" r="46" />
+    </clipPath>
+    </defs>
+
+    <!-- ⭕ Kreisförmiger Glitzer-Hintergrund -->
+    <circle
+      cx="50"
+      cy="50"
+      r="46"
+      fill="rgba(255,255,255,0.05)"
+    />
+
     <!-- Stern -->
     <path
       d="M 50 0
@@ -55,8 +69,6 @@
       filter="url(#noise)"
     />
 
-    <!-- ✅ Highlight entfernt (war hier vorher als Ellipse) -->
-
     <!-- Augen -->
     <ellipse cx="38" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
     <ellipse cx="62" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
@@ -65,7 +77,7 @@
     <ellipse class="blush" cx="28" cy="52" rx="6" ry="4" fill="#FF9999" />
     <ellipse class="blush" cx="72" cy="52" rx="6" ry="4" fill="#FF9999" />
 
-    <!-- 😊 Mund: enger (Enden näher zusammen) -->
+    <!-- Mund -->
     <path
       class="mouth-normal"
       d="M 46 58 Q 50 60 54 58"
@@ -85,9 +97,11 @@
     />
 
     <!-- Sparkles -->
+    <g clip-path="url(#circleClip)">
     <circle class="sparkle" cx="15" cy="20" r="2" fill="#FFFFFF" />
     <circle class="sparkle" cx="85" cy="30" r="1.5" fill="#FFFFFF" />
     <circle class="sparkle" cx="20" cy="70" r="1.5" fill="#FFFFFF" />
+    </g>
   </svg>
 </template>
 
