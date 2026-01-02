@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+/* keine Logik notwendig */
 </script>
 
 <template>
@@ -13,33 +13,29 @@
     role="img"
   >
     <defs>
-      <!-- Gradient -->
+      <!-- ⭐ Gradient -->
       <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#F5E6A8" />
         <stop offset="50%" stop-color="#F0DC8E" />
         <stop offset="100%" stop-color="#E8D078" />
       </linearGradient>
 
-      <!-- Noise / texture -->
+      <!-- ✨ Noise -->
       <filter id="noise">
-        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" />
         <feColorMatrix type="saturate" values="0" />
-        <feComponentTransfer>
-          <feFuncA type="discrete" tableValues="0 0 0 0 1" />
-        </feComponentTransfer>
         <feBlend mode="multiply" in="SourceGraphic" />
       </filter>
 
-      <!-- Shadow -->
+      <!-- 🌑 Shadow -->
       <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
         <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,0.15)" />
       </filter>
-    </defs>
 
-    <!-- ⭕ Kreis-Clip für Glitzer -->
-    <clipPath id="circleClip">
-      <circle cx="50" cy="50" r="46" />
-    </clipPath>
+      <!-- ⭕ Kreis-Clip für Glitzer -->
+      <clipPath id="circleClip">
+        <circle cx="50" cy="50" r="46" />
+      </clipPath>
     </defs>
 
     <!-- ⭕ Kreisförmiger Glitzer-Hintergrund -->
@@ -50,7 +46,7 @@
       fill="rgba(255,255,255,0.05)"
     />
 
-    <!-- Stern -->
+    <!-- ⭐ Stern -->
     <path
       d="M 50 0
          L 61.76 33.82
@@ -69,15 +65,15 @@
       filter="url(#noise)"
     />
 
-    <!-- Augen -->
+    <!-- 👀 Augen -->
     <ellipse cx="38" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
     <ellipse cx="62" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
 
-    <!-- Wangen -->
+    <!-- 😊 Wangen -->
     <ellipse class="blush" cx="28" cy="52" rx="6" ry="4" fill="#FF9999" />
     <ellipse class="blush" cx="72" cy="52" rx="6" ry="4" fill="#FF9999" />
 
-    <!-- Mund -->
+    <!-- 😊 Mund (enger & süß) -->
     <path
       class="mouth-normal"
       d="M 46 58 Q 50 60 54 58"
@@ -86,7 +82,6 @@
       stroke-linecap="round"
       fill="none"
     />
-
     <path
       class="mouth-hover"
       d="M 45.5 58 Q 50 61 54.5 58"
@@ -96,17 +91,16 @@
       fill="none"
     />
 
-    <!-- Sparkles -->
+    <!-- ✨ Sparkles – auf Kreis begrenzt -->
     <g clip-path="url(#circleClip)">
-    <circle class="sparkle" cx="15" cy="20" r="2" fill="#FFFFFF" />
-    <circle class="sparkle" cx="85" cy="30" r="1.5" fill="#FFFFFF" />
-    <circle class="sparkle" cx="20" cy="70" r="1.5" fill="#FFFFFF" />
+      <circle class="sparkle" cx="15" cy="20" r="2" fill="#FFFFFF" />
+      <circle class="sparkle" cx="85" cy="30" r="1.5" fill="#FFFFFF" />
+      <circle class="sparkle" cx="20" cy="70" r="1.5" fill="#FFFFFF" />
     </g>
   </svg>
 </template>
 
 <style scoped>
-/* Shadow + kleine Rotation beim Hover */
 .star-logo {
   cursor: default;
   filter: url(#drop);
@@ -118,17 +112,17 @@
   translate: 0 -2px;
 }
 
-/* Mouth swap on hover */
+/* Mund-Hover */
 .mouth-hover { opacity: 0; transition: opacity 200ms ease; }
 .mouth-normal { opacity: 1; transition: opacity 200ms ease; }
 .star-logo:hover .mouth-hover { opacity: 1; }
 .star-logo:hover .mouth-normal { opacity: 0; }
 
-/* Blush gets a bit stronger on hover */
-.blush { transition: opacity 200ms ease; opacity: 0.6; }
+/* Wangen */
+.blush { opacity: 0.6; transition: opacity 200ms ease; }
 .star-logo:hover .blush { opacity: 0.8; }
 
-/* Sparkles appear on hover */
+/* Sparkles */
 .sparkle { opacity: 0; transition: opacity 200ms ease; }
 .star-logo:hover .sparkle { opacity: 1; }
 </style>
