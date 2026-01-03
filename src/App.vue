@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import Logo from './components/Logo.vue'
+import { ref } from "vue";
+import { RouterLink, RouterView } from "vue-router";
+import SplashScreen from "@/components/SplashScreen.vue";
+
+const showSplash = ref(true);
+
+function closeSplash() {
+  showSplash.value = false;
+}
 </script>
 
 <template>
-  <header>
-    <Logo />
+  <SplashScreen v-if="showSplash" @close="closeSplash" />
 
+  <header v-else>
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
@@ -15,23 +22,20 @@ import Logo from './components/Logo.vue'
     </div>
   </header>
 
-  <RouterView />
+  <RouterView v-if="!showSplash" />
 </template>
 
 <style scoped>
 header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   line-height: 1.5;
   max-height: 100vh;
+  padding: 16px;
 }
 
 nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
-  margin-top: 2rem;
 }
 
 nav a.router-link-exact-active {
@@ -53,7 +57,6 @@ nav a:first-of-type {
     text-align: left;
     font-size: 1rem;
     padding: 1rem 0;
-    margin-top: 1rem;
   }
 }
 </style>
