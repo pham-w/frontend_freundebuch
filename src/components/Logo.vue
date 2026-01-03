@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* keine Logik */
+/* keine Logik nötig */
 </script>
 
 <template>
@@ -20,20 +20,23 @@
         <stop offset="100%" stop-color="#E8D078" />
       </linearGradient>
 
-      <!-- Subtile Textur (optional) -->
+      <!-- Noise / texture -->
       <filter id="noise">
-        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch" />
         <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncA type="discrete" tableValues="0 0 0 0 1" />
+        </feComponentTransfer>
         <feBlend mode="multiply" in="SourceGraphic" />
       </filter>
 
-      <!-- Shadow (optional) -->
+      <!-- Shadow -->
       <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
         <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="rgba(0,0,0,0.15)" />
       </filter>
     </defs>
 
-    <!-- ⭐ Nur der Stern -->
+    <!-- Stern -->
     <path
       d="M 50 0
          L 61.76 33.82
@@ -51,11 +54,67 @@
       stroke-width="1.5"
       filter="url(#noise)"
     />
+
+    <!-- ✅ Highlight entfernt (war hier vorher als Ellipse) -->
+
+    <!-- Augen -->
+    <ellipse cx="38" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
+    <ellipse cx="62" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
+
+    <!-- Wangen -->
+    <ellipse class="blush" cx="28" cy="52" rx="6" ry="4" fill="#FF9999" />
+    <ellipse class="blush" cx="72" cy="52" rx="6" ry="4" fill="#FF9999" />
+
+    <!-- 😊 Mund: enger (Enden näher zusammen) -->
+    <path
+      class="mouth-normal"
+      d="M 46 58 Q 50 60 54 58"
+      stroke="#5C3A21"
+      stroke-width="2"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <path
+      class="mouth-hover"
+      d="M 45.5 58 Q 50 61 54.5 58"
+      stroke="#5C3A21"
+      stroke-width="2"
+      stroke-linecap="round"
+      fill="none"
+    />
+
+    <!-- Sparkles -->
+    <circle class="sparkle" cx="15" cy="20" r="2" fill="#FFFFFF" />
+    <circle class="sparkle" cx="85" cy="30" r="1.5" fill="#FFFFFF" />
+    <circle class="sparkle" cx="20" cy="70" r="1.5" fill="#FFFFFF" />
   </svg>
 </template>
 
 <style scoped>
+/* Shadow + kleine Rotation beim Hover */
 .star-logo {
+  cursor: default;
   filter: url(#drop);
+  transform-origin: 50% 50%;
+  transition: transform 280ms ease, translate 280ms ease;
 }
+.star-logo:hover {
+  transform: rotate(2deg);
+  translate: 0 -2px;
+}
+
+/* Mouth swap on hover */
+.mouth-hover { opacity: 0; transition: opacity 200ms ease; }
+.mouth-normal { opacity: 1; transition: opacity 200ms ease; }
+.star-logo:hover .mouth-hover { opacity: 1; }
+.star-logo:hover .mouth-normal { opacity: 0; }
+
+/* Blush gets a bit stronger on hover */
+.blush { transition: opacity 200ms ease; opacity: 0.6; }
+.star-logo:hover .blush { opacity: 0.8; }
+
+/* Sparkles appear on hover */
+.sparkle { opacity: 0; transition: opacity 200ms ease; }
+.star-logo:hover .sparkle { opacity: 1; }
 </style>
