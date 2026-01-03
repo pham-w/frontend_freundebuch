@@ -22,7 +22,7 @@ function close() {
 
         <text class="arc-text">
           <textPath href="#arcPath" startOffset="50%" text-anchor="middle">
-            klicke auf mich
+            Klick auf mich!
           </textPath>
         </text>
       </svg>
@@ -32,7 +32,6 @@ function close() {
         <Logo />
       </button>
 
-      <p class="hint">Tippe/Klicke auf das Logo</p>
     </div>
   </div>
 </template>
@@ -80,12 +79,5 @@ function close() {
 .logoButton:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.85);
   outline-offset: 10px;
-}
-
-/* kleiner Hint */
-.hint {
-  margin: 0;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
 }
 </style>
