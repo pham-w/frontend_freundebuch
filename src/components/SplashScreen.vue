@@ -51,6 +51,7 @@ function close() {
   place-items: center;
   gap: 10px;
   padding: 24px;
+  transform: translateY(-10px);
 }
 
 .arc {
@@ -73,6 +74,7 @@ function close() {
   padding: 0;
   cursor: pointer;
   border-radius: 999px;
+  transform:scale(1.6);
 }
 
 /* Tastatur-Fokus */
