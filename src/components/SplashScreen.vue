@@ -74,7 +74,7 @@ function close() {
   padding: 0;
   cursor: pointer;
   border-radius: 999px;
-  transform:scale(2.0);
+  transform:scale(3.0);
 }
 
 /* Tastatur-Fokus */
