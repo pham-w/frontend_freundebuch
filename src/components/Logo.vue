@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/* keine Logik nötig */
+
 </script>
 
 <template>
@@ -15,9 +15,9 @@
     <defs>
       <!-- Gradient -->
       <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#F5E6A8" />
-        <stop offset="50%" stop-color="#F0DC8E" />
-        <stop offset="100%" stop-color="#E8D078" />
+        <stop offset="0%" stop-color="#f9dc5d" />
+        <stop offset="50%" stop-color="#f9dc5d" />
+        <stop offset="100%" stop-color="#f9dc5d" />
       </linearGradient>
 
       <!-- Noise / texture -->
@@ -50,22 +50,19 @@
          L 38.24 33.82
          Z"
       fill="url(#starGradient)"
-      stroke="#D4B86A"
-      stroke-width="1.5"
+      stroke="#795434"
+      stroke-width="1.3"
       filter="url(#noise)"
     />
 
-    <!-- ✅ Highlight entfernt (war hier vorher als Ellipse) -->
-
     <!-- Augen -->
-    <ellipse cx="38" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
-    <ellipse cx="62" cy="45" rx="2.5" ry="6" fill="#5C3A21" />
+    <ellipse cx="40" cy="45" rx="3.3" ry="6" fill="#5C3A21" />
+    <ellipse cx="60" cy="45" rx="3.3" ry="6" fill="#5C3A21" />
 
     <!-- Wangen -->
-    <ellipse class="blush" cx="28" cy="52" rx="6" ry="4" fill="#FF9999" />
-    <ellipse class="blush" cx="72" cy="52" rx="6" ry="4" fill="#FF9999" />
+    <ellipse class="blush" cx="28" cy="52" rx="6" ry="4" fill="#c74e51" />
+    <ellipse class="blush" cx="72" cy="52" rx="6" ry="4" fill="#c74e51" />
 
-    <!-- 😊 Mund: enger (Enden näher zusammen) -->
     <path
       class="mouth-normal"
       d="M 46 58 Q 50 60 54 58"
@@ -77,7 +74,7 @@
 
     <path
       class="mouth-hover"
-      d="M 45.5 58 Q 50 61 54.5 58"
+      d="M 46 58.5 Q 50 63 54 58.5"
       stroke="#5C3A21"
       stroke-width="2"
       stroke-linecap="round"
@@ -100,8 +97,7 @@
   transition: transform 280ms ease, translate 280ms ease;
 }
 .star-logo:hover {
-  transform: rotate(2deg);
-  translate: 0 -2px;
+  transform: rotate(25deg);
 }
 
 /* Mouth swap on hover */
@@ -111,8 +107,8 @@
 .star-logo:hover .mouth-normal { opacity: 0; }
 
 /* Blush gets a bit stronger on hover */
-.blush { transition: opacity 200ms ease; opacity: 0.6; }
-.star-logo:hover .blush { opacity: 0.8; }
+.blush { transition: opacity 200ms ease; opacity: 0.8; }
+.star-logo:hover .blush { opacity: 1.0; }
 
 /* Sparkles appear on hover */
 .sparkle { opacity: 0; transition: opacity 200ms ease; }
