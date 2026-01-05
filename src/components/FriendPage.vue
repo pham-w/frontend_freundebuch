@@ -22,5 +22,6 @@ defineProps<{ person: any; visible: boolean }>()
   padding: 20px;
   margin: 10px;
   background: #fff;
+  color: #181818;
 }
 </style>
