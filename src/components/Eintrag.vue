@@ -143,6 +143,7 @@ label {
   display: grid;
   gap: 6px;
   font-size: 14px;
+  color: #181818;
 }
 
 input {
