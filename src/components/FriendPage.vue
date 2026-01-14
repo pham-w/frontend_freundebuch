@@ -3,10 +3,20 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-defineProps<{ person: any; visible: boolean }>();
+// Props holen
+const props = defineProps<{ person: any; visible: boolean }>();
+
+// Events nach oben (an FriendBook) schicken
+const emit = defineEmits<{
+  (e: "deleted", id: number): void;
+}>();
 
 function editEntry(id: number) {
   router.push(`/edit/${id}`);
+}
+
+function deleteEntry() {
+  emit("deleted", props.person.id);
 }
 </script>
 
@@ -23,10 +33,17 @@ function editEntry(id: number) {
       <li>Traumberuf: {{ person.dreamJob }}</li>
     </ul>
 
-    <!-- ✏️ Bearbeiten Button -->
-    <button class="edit-btn" @click="editEntry(person.id)">
-      ✏️ Eintrag bearbeiten
-    </button>
+    <div class="buttons">
+      <!-- ✏️ Bearbeiten -->
+      <button class="edit-btn" @click="editEntry(person.id)">
+        ✏️ Eintrag bearbeiten
+      </button>
+
+      <!-- 🗑 Löschen -->
+      <button class="delete-btn" @click="deleteEntry">
+        🗑 Eintrag löschen
+      </button>
+    </div>
   </div>
 </template>
 
@@ -40,9 +57,14 @@ function editEntry(id: number) {
   position: relative;
 }
 
-/* Button-Design: dezent */
-.edit-btn {
+.buttons {
+  display: flex;
+  gap: 8px;
   margin-top: 12px;
+}
+
+/* Bearbeiten-Button */
+.edit-btn {
   padding: 8px 14px;
   border-radius: 999px;
   border: 1px solid rgba(0,0,0,0.25);
@@ -53,6 +75,22 @@ function editEntry(id: number) {
 
 .edit-btn:hover {
   background: #111827;
+  color: white;
+}
+
+/* Löschen-Button */
+.delete-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #b91c1c;
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
   color: white;
 }
 </style>
