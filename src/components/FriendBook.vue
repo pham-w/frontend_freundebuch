@@ -13,7 +13,8 @@ onMounted(async () => {
   try {
     const res = await fetch("https://webtech-projekt-1-p0l3.onrender.com/seite")
     if (!res.ok) throw new Error("HTTP " + res.status)
-    pages.value = await res.json()
+    const data = await res.json()
+    pages.value = data.sort((a:any, b:any) => a.id - b.id)
   } catch (e: any) {
     error.value = e.message
   } finally {
