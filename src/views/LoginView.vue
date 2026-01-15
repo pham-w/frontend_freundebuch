@@ -15,10 +15,17 @@
 
       <button type="submit">Einloggen</button>
 
+      <!-- ✅ HIER: Link zur Registrierung -->
+      <p class="hint">
+        Noch keinen Account?
+        <RouterLink to="/register">Registrieren</RouterLink>
+      </p>
+
       <p v-if="error" class="error">{{ error }}</p>
     </form>
   </main>
 </template>
+
 
 <script setup lang="ts">
 import { ref } from "vue";
@@ -50,4 +57,6 @@ label { display: grid; gap: 6px; }
 input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
 button { padding: 10px; border-radius: 10px; border: 0; cursor: pointer; }
 .error { color: #b00020; }
+.hint {margin: 0;font-size: 14px;opacity: 0.85;text-align: center;}
+.hint a {font-weight: 700;text-decoration: underline;}
 </style>

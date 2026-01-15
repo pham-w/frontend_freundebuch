@@ -20,6 +20,11 @@
 
       <button type="submit">Account erstellen</button>
 
+      <p class="hint">
+        Schon registriert?
+        <RouterLink to="/login">Zum Login</RouterLink>
+      </p>
+
       <p v-if="msg" class="ok">{{ msg }}</p>
       <p v-if="error" class="error">{{ error }}</p>
     </form>
