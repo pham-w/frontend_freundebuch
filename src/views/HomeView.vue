@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import FriendBook from '@/components/FriendBook.vue'
+import FriendBook from "@/components/FriendBook.vue";
 import { useRouter } from "vue-router";
+import {authUser, logout} from "@/services/authStore";
+
 
 const router = useRouter();
 
 function goToNewEntry() {
   router.push("/new");
 }
-
 </script>
 
 <template>
@@ -15,13 +16,36 @@ function goToNewEntry() {
     <div class="topbar">
       <h1 class="title">Mein Freundebuch</h1>
 
-      <button class="create-btn" @click="goToNewEntry">
-        ➕ Neuen Eintrag erstellen
-      </button>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <template v-if="authUser">
+          <span>Hallo, {{ authUser.name }} 👋</span>
+
+          <button class="create-btn" @click="logout">
+            Logout
+          </button>
+
+          <button class="create-btn" @click="goToNewEntry">
+            ➕ Neuer Eintrag
+          </button>
+        </template>
+
+        <template v-else>
+          <button class="create-btn" @click="router.push('/login')">
+            Login
+          </button>
+
+          <button class="create-btn" @click="router.push('/register')">
+            Registrieren
+          </button>
+        </template>
+      </div>
     </div>
-  <FriendBook />
+
+
+    <FriendBook />
   </main>
 </template>
+
 <style scoped>
 .page {
   padding: 20px;
