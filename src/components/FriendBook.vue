@@ -56,7 +56,7 @@ const monthOptions = computed(() => {
     value: m,
     label: monthNames[m] ?? m,
   }));
-});
+});//
 
 const foodOptions = computed(() => unique(pages.value.map((p) => p.favFood)));
 const colorOptions = computed(() => unique(pages.value.map((p) => p.favColor)));
