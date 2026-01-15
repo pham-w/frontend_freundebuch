@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE ?? "https://webtech-projekt-1-p0l3.onrender.com";
 
 export type AuthUser = { id: number; email: string; name: string };
 
