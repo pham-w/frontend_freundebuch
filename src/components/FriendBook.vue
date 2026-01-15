@@ -1,82 +1,30 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import FriendPage from './FriendPage.vue'
-import BookCover from './BookCover.vue'
-import BookControls from './BookControls.vue'
+import { ref, computed, watch } from "vue";
+import FriendPage from "./FriendPage.vue";
+import BookCover from "./BookCover.vue";
+import BookControls from "./BookControls.vue";
 
-const API_BASE = "https://webtech-projekt-1-p0l3.onrender.com"
+import { API_BASE } from "@/services/api";
+import { authUser } from "@/services/authStore";
 
-const pages = ref<any[]>([])
-const pageIndex = ref(-1)
-const loading = ref(true)
-const error = ref<string | null>(null)
+const pages = ref<any[]>([]);
+const pageIndex = ref(-1);
+const loading = ref(true);
+const error = ref<string | null>(null);
 
-type FilterType = "none" | "month" | "food" | "color"
-const filterType = ref<FilterType>("none")
-const filterValue = ref<string | null>(null)
+// -------------------- FILTER --------------------
+type FilterType = "none" | "month" | "food" | "color";
+const filterType = ref<FilterType>("none");
+const filterValue = ref<string | null>(null);
 
 const isFilterActive = computed(
   () => filterType.value !== "none" && !!filterValue.value
-)
-
-async function loadPages() {
-  loading.value = true
-  error.value = null
-
-  try {
-    const res = await fetch(`${API_BASE}/seite`)
-    if (!res.ok) throw new Error("HTTP " + res.status)
-    const data = await res.json()
-    // nach ID sortieren
-    pages.value = data.sort((a: any, b: any) => a.id - b.id)
-  } catch (e: any) {
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(loadPages)
-
-// blättern Fkt
-const next = () =>
-  pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++
-const prev = () =>
-  pageIndex.value >= 0 && pageIndex.value--
-
-// Löschen eines Eintrags
-async function deleteEntry(id: number) {
-  const confirmed = window.confirm("Willst du diesen Eintrag wirklich löschen?")
-  if (!confirmed) return
-
-  try {
-    const res = await fetch(`${API_BASE}/seite/${id}`, {
-      method: "DELETE",
-    })
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(`HTTP ${res.status}: ${text}`)
-    }
-
-    // lokal entfernen
-    pages.value = pages.value.filter(p => p.id !== id)
-
-    // pageIndex nur im Buchmodus prüfen/korrigieren
-    if (!isFilterActive.value) {
-      if (filteredPages.value.length === 0) {
-        pageIndex.value = -1
-      } else if (pageIndex.value >= filteredPages.value.length) {
-        pageIndex.value = filteredPages.value.length - 1
-      }
-    }
-  } catch (e: any) {
-    window.alert("Löschen fehlgeschlagen: " + (e?.message ?? e))
-  }
-}
+);
 
 function unique(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean).map(v => v.trim())))
-    .sort((a, b) => a.localeCompare(b, "de"))
+  return Array.from(new Set(values.filter(Boolean).map((v) => v.trim()))).sort(
+    (a, b) => a.localeCompare(b, "de")
+  );
 }
 
 const monthNames: Record<string, string> = {
@@ -92,56 +40,142 @@ const monthNames: Record<string, string> = {
   "10": "Oktober",
   "11": "November",
   "12": "Dezember",
-}
+};
 
-// Monat aus "YYYY-MM-DD" holen
 const monthOptions = computed(() => {
   const months = pages.value
-    .map(p => {
-      if (!p.geburtsdatum) return null
-      const s = String(p.geburtsdatum)
-      if (s.length < 7) return null
-      return s.slice(5, 7)
+    .map((p) => {
+      if (!p.geburtsdatum) return null;
+      const s = String(p.geburtsdatum);
+      if (s.length < 7) return null;
+      return s.slice(5, 7);
     })
-    .filter(m => !!m) as string[]
+    .filter((m) => !!m) as string[];
 
-  return unique(months).map(m => ({
+  return unique(months).map((m) => ({
     value: m,
     label: monthNames[m] ?? m,
-  }))
-})
+  }));
+});
 
-const foodOptions = computed(() => unique(pages.value.map(p => p.favFood)))
-const colorOptions = computed(() => unique(pages.value.map(p => p.favColor)))
+const foodOptions = computed(() => unique(pages.value.map((p) => p.favFood)));
+const colorOptions = computed(() => unique(pages.value.map((p) => p.favColor)));
 
-// gefilterte Liste
 const filteredPages = computed(() => {
-  let list = pages.value
+  let list = pages.value;
 
   if (filterType.value === "month" && filterValue.value) {
-    list = list.filter(p => {
-      if (!p.geburtsdatum) return false
-      const s = String(p.geburtsdatum)
-      if (s.length < 7) return false
-      return s.slice(5, 7) === filterValue.value
-    })
+    list = list.filter((p) => {
+      if (!p.geburtsdatum) return false;
+      const s = String(p.geburtsdatum);
+      if (s.length < 7) return false;
+      return s.slice(5, 7) === filterValue.value;
+    });
   } else if (filterType.value === "food" && filterValue.value) {
-    list = list.filter(p => p.favFood === filterValue.value)
+    list = list.filter((p) => p.favFood === filterValue.value);
   } else if (filterType.value === "color" && filterValue.value) {
-    list = list.filter(p => p.favColor === filterValue.value)
+    list = list.filter((p) => p.favColor === filterValue.value);
   }
 
-  return list
-})
+  return list;
+});
 
-// Filteränderung → immer zurück zum Cover (Buchmodus)
+// Filteränderung → zurück zum Cover (Buchmodus)
 watch([filterType, filterValue], () => {
-  pageIndex.value = -1
-})
+  pageIndex.value = -1;
+});
 
 function resetFilter() {
-  filterType.value = "none"
-  filterValue.value = null
+  filterType.value = "none";
+  filterValue.value = null;
+}
+
+// -------------------- DATA LOAD (AUTH) --------------------
+async function loadPages() {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const uid = authUser.value?.id;
+    if (!uid) {
+      pages.value = [];
+      pageIndex.value = -1;
+      return;
+    }
+
+    const res = await fetch(`${API_BASE}/seite?userId=${uid}`);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    pages.value = data.sort((a: any, b: any) => a.id - b.id);
+
+    // Standard: Cover zeigen, aber wenn du lieber direkt erste Seite willst,
+    // setz hier auf 0 (wenn pages vorhanden)
+    pageIndex.value = pages.value.length > 0 ? 0 : -1;
+  } catch (e: any) {
+    error.value = e?.message ?? String(e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+// bei Login/Logout neu laden
+watch(
+  authUser,
+  () => {
+    pageIndex.value = -1;
+    loadPages();
+  },
+  { immediate: true }
+);
+
+// -------------------- BLÄTTERN --------------------
+const next = () =>
+  pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++;
+const prev = () => pageIndex.value >= 0 && pageIndex.value--;
+
+// -------------------- DELETE (AUTH) --------------------
+async function deleteEntry(id: number) {
+  const confirmed = window.confirm("Willst du diesen Eintrag wirklich löschen?");
+  if (!confirmed) return;
+
+  const uid = authUser.value?.id;
+  if (!uid) {
+    window.alert("Nicht eingeloggt.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/seite/${id}?userId=${uid}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
+    }
+
+    // lokal entfernen
+    pages.value = pages.value.filter((p) => p.id !== id);
+
+    // pageIndex sinnvoll korrigieren:
+    // - Im Buchmodus: anhand filteredPages
+    // - Im Filtermodus: du zeigst eh alle Einträge; aber Index trotzdem safe halten
+    if (!isFilterActive.value) {
+      if (filteredPages.value.length === 0) {
+        pageIndex.value = -1;
+      } else if (pageIndex.value >= filteredPages.value.length) {
+        pageIndex.value = filteredPages.value.length - 1;
+      }
+    } else {
+      // falls du aus irgendeinem Grund pageIndex nutzt, halte ihn gültig
+      if (pageIndex.value >= filteredPages.value.length) {
+        pageIndex.value = filteredPages.value.length - 1;
+      }
+    }
+  } catch (e: any) {
+    window.alert("Löschen fehlgeschlagen: " + (e?.message ?? e));
+  }
 }
 </script>
 
@@ -150,7 +184,7 @@ function resetFilter() {
     <p v-if="loading">Lade Freundebuch…</p>
     <p v-if="error">Fehler: {{ error }}</p>
 
-    <!--  Filterleiste -->
+    <!-- Filterleiste -->
     <div v-if="!loading && !error" class="filter-bar">
       <div class="filter-row">
         <label>
@@ -199,9 +233,7 @@ function resetFilter() {
         <span v-if="isFilterActive">
           Gefilterte Einträge: {{ filteredPages.length }} von {{ pages.length }}
         </span>
-        <span v-else>
-          Einträge gesamt: {{ pages.length }}
-        </span>
+        <span v-else> Einträge gesamt: {{ pages.length }} </span>
       </p>
     </div>
 
@@ -209,10 +241,7 @@ function resetFilter() {
     <template v-if="!isFilterActive">
       <BookCover v-if="pageIndex < 0" />
 
-      <p
-        v-if="!loading && !error && filteredPages.length === 0"
-        class="empty"
-      >
+      <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
         Noch keine Einträge vorhanden.
       </p>
 
@@ -234,10 +263,7 @@ function resetFilter() {
 
     <!-- Filter-Ansicht -->
     <template v-else>
-      <p
-        v-if="!loading && !error && filteredPages.length === 0"
-        class="empty"
-      >
+      <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
         Keine Einträge mit diesem Filter gefunden.
       </p>
 

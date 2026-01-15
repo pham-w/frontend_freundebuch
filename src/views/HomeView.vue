@@ -19,8 +19,14 @@ function onLogout() {
 
       <div class="right" v-if="authUser">
         <span>{{ authUser.name }}</span>
+
+        <button class="logout-btn" @click="router.push('/new')">
+          ➕ Neu
+        </button>
+
         <button class="logout-btn" @click="onLogout">Logout</button>
       </div>
+
     </div>
 
     <FriendBook />

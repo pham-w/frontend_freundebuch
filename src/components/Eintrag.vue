@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import { API_BASE } from "@/services/api";
+import { authUser } from "@/services/authStore";
 
 type FriendPayload = {
   name: string;
@@ -9,9 +11,8 @@ type FriendPayload = {
   hobby: string;
   favFood: string;
   dreamJob: string;
+  userId: number;
 };
-
-const API_BASE = "https://webtech-projekt-1-p0l3.onrender.com";
 
 const form = reactive<FriendPayload>({
   name: "",
@@ -21,6 +22,7 @@ const form = reactive<FriendPayload>({
   hobby: "",
   favFood: "",
   dreamJob: "",
+  userId: 0,
 });
 
 const loading = ref(false);
@@ -31,11 +33,11 @@ const emit = defineEmits<{
   (e: "created"): void;
 }>();
 
+
 async function submit() {
   error.value = null;
   success.value = false;
 
-  // Mini-Checks
   if (!form.name.trim()) {
     error.value = "Bitte Name eingeben.";
     return;
@@ -44,7 +46,13 @@ async function submit() {
     error.value = "Bitte Geburtsdatum auswählen.";
     return;
   }
+  const userId = authUser.value?.id;
+  if (!userId) {
+    error.value = "Nicht eingeloggt.";
+    return;
+  }
 
+  form.userId = userId;
   loading.value = true;
   try {
     const res = await fetch(`${API_BASE}/seite`, {
@@ -70,6 +78,7 @@ async function submit() {
     form.hobby = "";
     form.favFood = "";
     form.dreamJob = "";
+    form.userId = userId;
 
     emit("created"); // Parent kann Liste neu laden
   } catch (e: any) {
