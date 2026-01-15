@@ -1,50 +1,32 @@
 <script setup lang="ts">
 import FriendBook from "@/components/FriendBook.vue";
 import { useRouter } from "vue-router";
-import {authUser, logout} from "@/services/authStore";
-
+import { authUser, logout } from "@/services/authStore";
 
 const router = useRouter();
 
-function goToNewEntry() {
-  router.push("/new");
+function onLogout() {
+  logout();
+  router.push("/login");
 }
 </script>
+
 
 <template>
   <main class="page">
     <div class="topbar">
       <h1 class="title">Mein Freundebuch</h1>
 
-      <div style="display:flex; gap:10px; align-items:center;">
-        <template v-if="authUser">
-          <span>Hallo, {{ authUser.name }} 👋</span>
-
-          <button class="create-btn" @click="logout">
-            Logout
-          </button>
-
-          <button class="create-btn" @click="goToNewEntry">
-            ➕ Neuer Eintrag
-          </button>
-        </template>
-
-        <template v-else>
-          <button class="create-btn" @click="router.push('/login')">
-            Login
-          </button>
-
-          <button class="create-btn" @click="router.push('/register')">
-            Registrieren
-          </button>
-        </template>
+      <div class="right" v-if="authUser">
+        <span>{{ authUser.name }}</span>
+        <button class="logout-btn" @click="onLogout">Logout</button>
       </div>
     </div>
-
 
     <FriendBook />
   </main>
 </template>
+
 
 <style scoped>
 .page {
@@ -65,8 +47,7 @@ function goToNewEntry() {
   margin: 0;
   font-size: 22px;
 }
-
-.create-btn {
+.logout-btn {
   padding: 10px 14px;
   border-radius: 12px;
   border: 0;
@@ -75,8 +56,12 @@ function goToNewEntry() {
   font-weight: 600;
   cursor: pointer;
 }
-
-.create-btn:hover {
+.logout-btn:hover {
   opacity: 0.92;
+}
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 </style>
