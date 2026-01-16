@@ -12,13 +12,23 @@ const pageIndex = ref(-1);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// -------------------- FILTER --------------------
-type FilterType = "none" | "month" | "food" | "color";
-const filterType = ref<FilterType>("none");
-const filterValue = ref<string | null>(null);
+// -------------------- FILTER: einzelne Felder --------------------
+const selectedMonth = ref<string | null>(null);
+const selectedFood = ref<string | null>(null);
+const selectedColor = ref<string | null>(null);
+const selectedAge = ref<string | null>(null);
+const selectedHobby = ref<string | null>(null);
+const selectedDreamJob = ref<string | null>(null);
 
+// Ist irgendein Filter aktiv?
 const isFilterActive = computed(
-  () => filterType.value !== "none" && !!filterValue.value
+  () =>
+    !!selectedMonth.value ||
+    !!selectedFood.value ||
+    !!selectedColor.value ||
+    !!selectedAge.value ||
+    !!selectedHobby.value ||
+    !!selectedDreamJob.value
 );
 
 function unique(values: string[]) {
@@ -48,7 +58,7 @@ const monthOptions = computed(() => {
       if (!p.geburtsdatum) return null;
       const s = String(p.geburtsdatum);
       if (s.length < 7) return null;
-      return s.slice(5, 7);
+      return s.slice(5, 7); // MM
     })
     .filter((m) => !!m) as string[];
 
@@ -56,38 +66,77 @@ const monthOptions = computed(() => {
     value: m,
     label: monthNames[m] ?? m,
   }));
-});//
+});
 
 const foodOptions = computed(() => unique(pages.value.map((p) => p.favFood)));
 const colorOptions = computed(() => unique(pages.value.map((p) => p.favColor)));
+const ageOptions = computed(() => unique(pages.value.map((p) => String(p.age))));
+const hobbyOptions = computed(() => unique(pages.value.map((p) => p.hobby)));
+const dreamJobOptions = computed(() => unique(pages.value.map((p) => p.dreamJob)));
 
+// Kombinierter Filter: alle gesetzten Filter müssen passen
 const filteredPages = computed(() => {
-  let list = pages.value;
-
-  if (filterType.value === "month" && filterValue.value) {
-    list = list.filter((p) => {
+  return pages.value.filter((p) => {
+    // Geburtsmonat
+    if (selectedMonth.value) {
       if (!p.geburtsdatum) return false;
       const s = String(p.geburtsdatum);
       if (s.length < 7) return false;
-      return s.slice(5, 7) === filterValue.value;
-    });
-  } else if (filterType.value === "food" && filterValue.value) {
-    list = list.filter((p) => p.favFood === filterValue.value);
-  } else if (filterType.value === "color" && filterValue.value) {
-    list = list.filter((p) => p.favColor === filterValue.value);
+      const month = s.slice(5, 7);
+      if (month !== selectedMonth.value) return false;
+    }
+
+    // Lieblingsessen
+    if (selectedFood.value) {
+      if (p.favFood !== selectedFood.value) return false;
+    }
+
+    // Lieblingsfarbe
+    if (selectedColor.value) {
+      if (p.favColor !== selectedColor.value) return false;
+    }
+
+    // Alter
+    if (selectedAge.value) {
+      if (String(p.age) !== selectedAge.value) return false;
+    }
+
+    // Hobby
+    if (selectedHobby.value) {
+      if (p.hobby !== selectedHobby.value) return false;
+    }
+
+    // Traumberuf
+    if (selectedDreamJob.value) {
+      if (p.dreamJob !== selectedDreamJob.value) return false;
+    }
+
+    return true;
+  });
+});
+
+// Wenn irgendein Filter sich ändert → im Buchmodus wieder zum Cover
+watch(
+  [
+    selectedMonth,
+    selectedFood,
+    selectedColor,
+    selectedAge,
+    selectedHobby,
+    selectedDreamJob,
+  ],
+  () => {
+    pageIndex.value = -1;
   }
-
-  return list;
-});
-
-// Filteränderung → zurück zum Cover (Buchmodus)
-watch([filterType, filterValue], () => {
-  pageIndex.value = -1;
-});
+);
 
 function resetFilter() {
-  filterType.value = "none";
-  filterValue.value = null;
+  selectedMonth.value = null;
+  selectedFood.value = null;
+  selectedColor.value = null;
+  selectedAge.value = null;
+  selectedHobby.value = null;
+  selectedDreamJob.value = null;
 }
 
 // -------------------- DATA LOAD (AUTH) --------------------
@@ -109,8 +158,7 @@ async function loadPages() {
     const data = await res.json();
     pages.value = data.sort((a: any, b: any) => a.id - b.id);
 
-    // Standard: Cover zeigen, aber wenn du lieber direkt erste Seite willst,
-    // setz hier auf 0 (wenn pages vorhanden)
+    // Start: erste Seite, falls vorhanden
     pageIndex.value = pages.value.length > 0 ? 0 : -1;
   } catch (e: any) {
     error.value = e?.message ?? String(e);
@@ -158,9 +206,7 @@ async function deleteEntry(id: number) {
     // lokal entfernen
     pages.value = pages.value.filter((p) => p.id !== id);
 
-    // pageIndex sinnvoll korrigieren:
-    // - Im Buchmodus: anhand filteredPages
-    // - Im Filtermodus: du zeigst eh alle Einträge; aber Index trotzdem safe halten
+    // Index im Buchmodus korrigieren
     if (!isFilterActive.value) {
       if (filteredPages.value.length === 0) {
         pageIndex.value = -1;
@@ -168,7 +214,7 @@ async function deleteEntry(id: number) {
         pageIndex.value = filteredPages.value.length - 1;
       }
     } else {
-      // falls du aus irgendeinem Grund pageIndex nutzt, halte ihn gültig
+      // im Filtermodus zur Sicherheit
       if (pageIndex.value >= filteredPages.value.length) {
         pageIndex.value = filteredPages.value.length - 1;
       }
@@ -184,42 +230,71 @@ async function deleteEntry(id: number) {
     <p v-if="loading">Lade Freundebuch…</p>
     <p v-if="error">Fehler: {{ error }}</p>
 
-    <!-- Filterleiste -->
+    <!-- FILTERLEISTE -->
     <div v-if="!loading && !error" class="filter-bar">
       <div class="filter-row">
+        <!-- Geburtsmonat -->
         <label>
-          Filtertyp:
-          <select v-model="filterType">
-            <option value="none">Kein Filter</option>
-            <option value="month">Geburtsmonat</option>
-            <option value="food">Lieblingsessen</option>
-            <option value="color">Lieblingsfarbe</option>
-          </select>
-        </label>
-
-        <label v-if="filterType !== 'none'">
-          Wert:
-          <!-- Geburtsmonat -->
-          <select v-if="filterType === 'month'" v-model="filterValue">
+          Geburtsmonat:
+          <select v-model="selectedMonth">
             <option :value="null">Alle Monate</option>
             <option v-for="m in monthOptions" :key="m.value" :value="m.value">
               {{ m.label }}
             </option>
           </select>
+        </label>
 
-          <!-- Lieblingsessen -->
-          <select v-else-if="filterType === 'food'" v-model="filterValue">
+        <!-- Alter -->
+        <label>
+          Alter:
+          <select v-model="selectedAge">
+            <option :value="null">Alle Alter</option>
+            <option v-for="a in ageOptions" :key="a" :value="a">
+              {{ a }}
+            </option>
+          </select>
+        </label>
+
+        <!-- Lieblingsessen -->
+        <label>
+          Lieblingsessen:
+          <select v-model="selectedFood">
             <option :value="null">Alle Essen</option>
             <option v-for="f in foodOptions" :key="f" :value="f">
               {{ f }}
             </option>
           </select>
+        </label>
 
-          <!-- Lieblingsfarbe -->
-          <select v-else-if="filterType === 'color'" v-model="filterValue">
+        <!-- Lieblingsfarbe -->
+        <label>
+          Lieblingsfarbe:
+          <select v-model="selectedColor">
             <option :value="null">Alle Farben</option>
             <option v-for="c in colorOptions" :key="c" :value="c">
               {{ c }}
+            </option>
+          </select>
+        </label>
+
+        <!-- Hobby -->
+        <label>
+          Hobby:
+          <select v-model="selectedHobby">
+            <option :value="null">Alle Hobbys</option>
+            <option v-for="h in hobbyOptions" :key="h" :value="h">
+              {{ h }}
+            </option>
+          </select>
+        </label>
+
+        <!-- Traumberuf -->
+        <label>
+          Traumberuf:
+          <select v-model="selectedDreamJob">
+            <option :value="null">Alle Traumberufe</option>
+            <option v-for="d in dreamJobOptions" :key="d" :value="d">
+              {{ d }}
             </option>
           </select>
         </label>
@@ -233,11 +308,11 @@ async function deleteEntry(id: number) {
         <span v-if="isFilterActive">
           Gefilterte Einträge: {{ filteredPages.length }} von {{ pages.length }}
         </span>
-        <span v-else> Einträge gesamt: {{ pages.length }} </span>
+        <span v-else>Einträge gesamt: {{ pages.length }}</span>
       </p>
     </div>
 
-    <!-- Buch-Ansicht -->
+    <!-- 📖 Buch-Ansicht (kein Filter aktiv) -->
     <template v-if="!isFilterActive">
       <BookCover v-if="pageIndex < 0" />
 
@@ -261,10 +336,10 @@ async function deleteEntry(id: number) {
       />
     </template>
 
-    <!-- Filter-Ansicht -->
+    <!-- 📋 Listen-Ansicht (mindestens ein Filter aktiv) -->
     <template v-else>
       <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
-        Keine Einträge mit diesem Filter gefunden.
+        Keine Einträge mit diesen Filterkriterien gefunden.
       </p>
 
       <div v-else class="list">
