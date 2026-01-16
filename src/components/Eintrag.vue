@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { API_BASE } from "@/services/api";
 import { authUser } from "@/services/authStore";
 
 type FriendPayload = {
   name: string;
-  age: number;
   geburtsdatum: string; // YYYY-MM-DD
   favColor: string;
   hobby: string;
@@ -16,7 +15,6 @@ type FriendPayload = {
 
 const form = reactive<FriendPayload>({
   name: "",
-  age: 0,
   geburtsdatum: "",
   favColor: "",
   hobby: "",
@@ -33,6 +31,20 @@ const emit = defineEmits<{
   (e: "created"): void;
 }>();
 
+function calcAge(birthDate: string | null | undefined): number {
+  if (!birthDate) return 0;
+
+  const birth = new Date(birthDate);
+  const today = new Date();
+
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+
+  return age;
+}
+
+const computedAge = computed(() => calcAge(form.geburtsdatum));
 
 async function submit() {
   error.value = null;
@@ -55,10 +67,20 @@ async function submit() {
   form.userId = userId;
   loading.value = true;
   try {
+    const payload = {
+      name: form.name,
+      geburtsdatum: form.geburtsdatum,
+      favColor: form.favColor,
+      hobby: form.hobby,
+      favFood: form.favFood,
+      dreamJob: form.dreamJob,
+      userId: form.userId,
+    };
+
     const res = await fetch(`${API_BASE}/seite`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
@@ -72,7 +94,6 @@ async function submit() {
 
     // Reset
     form.name = "";
-    form.age = 0;
     form.geburtsdatum = "";
     form.favColor = "";
     form.hobby = "";
@@ -99,9 +120,10 @@ async function submit() {
     </label>
 
     <label>
-      Alter
-      <input v-model.number="form.age" type="number" min="0" max="120" />
+      Alter (automatisch)
+      <input :value="computedAge" type="number" disabled />
     </label>
+
 
     <label>
       Geburtsdatum
