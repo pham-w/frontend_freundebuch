@@ -13,6 +13,8 @@ const pageIndex = ref(-1);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
+const showFilters = ref(false);
+
 // -------------------- FILTER: einzelne Felder --------------------
 const selectedMonth = ref<string | null>(null);
 const selectedFood = ref<string | null>(null);
@@ -213,7 +215,6 @@ async function deleteEntry(id: number) {
     // lokal entfernen
     pages.value = pages.value.filter((p) => p.id !== id);
 
-    // Index im Buchmodus korrigieren
     if (!isFilterActive.value) {
       if (filteredPages.value.length === 0) {
         pageIndex.value = -1;
@@ -221,7 +222,6 @@ async function deleteEntry(id: number) {
         pageIndex.value = filteredPages.value.length - 1;
       }
     } else {
-      // im Filtermodus zur Sicherheit
       if (pageIndex.value >= filteredPages.value.length) {
         pageIndex.value = filteredPages.value.length - 1;
       }
@@ -234,16 +234,26 @@ async function deleteEntry(id: number) {
 
 <template>
   <div>
-    <!-- 📅 Kalender-Button -->
-    <button class="calendar-btn" type="button" @click="goToCalendar">
-      📅 Geburtstagskalender anzeigen
-    </button>
+    <!-- 🔝 oben: Kalender-Button + Filter-Toggle-Button -->
+    <div class="top-bar">
+      <button class="calendar-btn" type="button" @click="goToCalendar">
+        📅 Geburtstagskalender anzeigen
+      </button>
+
+      <button
+        class="filter-toggle-btn"
+        type="button"
+        @click="showFilters = !showFilters"
+      >
+        {{ showFilters ? "Filter ausblenden" : "Filter anzeigen" }}
+      </button>
+    </div>
 
     <p v-if="loading">Lade Freundebuch…</p>
     <p v-if="error">Fehler: {{ error }}</p>
 
-    <!-- FILTERLEISTE -->
-    <div v-if="!loading && !error" class="filter-bar">
+    <!-- FILTERLEISTE – nur wenn showFilters = true -->
+    <div v-if="!loading && !error && showFilters" class="filter-bar">
       <div class="filter-row">
         <!-- Geburtsmonat -->
         <label>
@@ -368,9 +378,16 @@ async function deleteEntry(id: number) {
 </template>
 
 <style scoped>
-.calendar-btn {
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
+}
+
+.calendar-btn,
+.filter-toggle-btn {
   padding: 8px 14px;
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -379,7 +396,8 @@ async function deleteEntry(id: number) {
   font-size: 14px;
 }
 
-.calendar-btn:hover {
+.calendar-btn:hover,
+.filter-toggle-btn:hover {
   background: #111827;
   color: white;
 }
