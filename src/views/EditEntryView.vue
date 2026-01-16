@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { API_BASE } from "@/services/api";
 
-const API_BASE = "https://webtech-projekt-1-p0l3.onrender.com";
+
 const route = useRoute();
 const router = useRouter();
 

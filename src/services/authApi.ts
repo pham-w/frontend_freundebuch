@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "https://webtech-projekt-1-p0l3.onrender.com";
+
+import { API_BASE } from "@/services/api";
 
 export type AuthUser = { id: number; email: string; name: string };
 
@@ -8,11 +9,7 @@ export async function register(email: string, password: string, name: string): P
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, name }),
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Register failed (${res.status})`);
-  }
+  if (!res.ok) throw new Error((await res.text()) || `Register failed (${res.status})`);
 }
 
 export async function login(email: string, password: string): Promise<AuthUser> {
@@ -21,11 +18,6 @@ export async function login(email: string, password: string): Promise<AuthUser> 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Login failed (${res.status})`);
-  }
-
+  if (!res.ok) throw new Error((await res.text()) || `Login failed (${res.status})`);
   return await res.json();
 }
