@@ -2,7 +2,7 @@
 import { onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { API_BASE } from "@/services/api";
-
+import { authUser } from "@/services/authStore";
 
 const route = useRoute();
 const router = useRouter();
@@ -23,7 +23,7 @@ const form = reactive({
   dreamJob: "",
 });
 
-// 1) Daten laden und Formular füllen
+// 1) Daten laden (GET braucht bei dir kein userId)
 onMounted(async () => {
   try {
     const res = await fetch(`${API_BASE}/seite/${id}`);
@@ -38,18 +38,25 @@ onMounted(async () => {
     form.favFood = data.favFood ?? "";
     form.dreamJob = data.dreamJob ?? "";
   } catch (e: any) {
-    error.value = e.message;
+    error.value = e?.message ?? String(e);
   } finally {
     loading.value = false;
   }
 });
 
-// 2) Speichern (PUT)
+// 2) Speichern (PUT braucht userId als Query)
 async function save() {
   error.value = null;
+
+  const uid = authUser.value?.id;
+  if (!uid) {
+    error.value = "Nicht eingeloggt.";
+    return;
+  }
+
   saving.value = true;
   try {
-    const res = await fetch(`${API_BASE}/seite/${id}`, {
+    const res = await fetch(`${API_BASE}/seite/${id}?userId=${uid}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -61,38 +68,11 @@ async function save() {
     }
 
     await res.json();
-    router.push("/"); // zurück zur Home
+    router.push("/");
   } catch (e: any) {
-    error.value = e.message ?? "Unbekannter Fehler";
+    error.value = e?.message ?? "Unbekannter Fehler";
   } finally {
     saving.value = false;
   }
 }
 </script>
-
-<template>
-  <main style="padding: 20px; display: grid; gap: 12px;">
-    <button @click="router.push('/')" style="width: fit-content;">
-      ← Zurück
-    </button>
-
-    <h1 style="margin: 0;">Eintrag bearbeiten (ID: {{ id }})</h1>
-
-    <p v-if="loading">Lade Daten…</p>
-    <p v-else-if="error">Fehler: {{ error }}</p>
-
-    <form v-else @submit.prevent="save" style="display:grid; gap:10px; max-width:520px;">
-      <label> Name <input v-model.trim="form.name" /> </label>
-      <label> Alter <input v-model.number="form.age" type="number" min="0" max="120" /> </label>
-      <label> Geburtsdatum <input v-model="form.geburtsdatum" type="date" /> </label>
-      <label> Lieblingsfarbe <input v-model.trim="form.favColor" /> </label>
-      <label> Hobby <input v-model.trim="form.hobby" /> </label>
-      <label> Lieblingsessen <input v-model.trim="form.favFood" /> </label>
-      <label> Traumberuf <input v-model.trim="form.dreamJob" /> </label>
-
-      <button type="submit" :disabled="saving">
-        {{ saving ? "Speichere…" : "Änderungen speichern" }}
-      </button>
-    </form>
-  </main>
-</template>
