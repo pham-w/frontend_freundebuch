@@ -14,6 +14,9 @@ const error = ref<string | null>(null);
 
 const showFilters = ref(false);
 
+// Suchleiste
+const searchName = ref("");
+
 // -------------------- FILTER: einzelne Felder --------------------
 const selectedMonth = ref<string | null>(null);
 const selectedFood = ref<string | null>(null);
@@ -22,7 +25,7 @@ const selectedAge = ref<string | null>(null);
 const selectedHobby = ref<string | null>(null);
 const selectedDreamJob = ref<string | null>(null);
 
-// Ist irgendein Filter aktiv?
+// Ist irgendein Filter oder die Suche aktiv?
 const isFilterActive = computed(
   () =>
     !!selectedMonth.value ||
@@ -30,7 +33,8 @@ const isFilterActive = computed(
     !!selectedColor.value ||
     !!selectedAge.value ||
     !!selectedHobby.value ||
-    !!selectedDreamJob.value
+    !!selectedDreamJob.value ||
+    !!searchName.value.trim()
 );
 
 function unique(values: string[]) {
@@ -39,6 +43,7 @@ function unique(values: string[]) {
   );
 }
 
+// Alter aus Geburtsdatum berechnen
 function calcAgeFromDate(d: string | null | undefined): string | null {
   if (!d) return null;
   const birth = new Date(d);
@@ -89,11 +94,10 @@ const ageOptions = computed(() =>
       .filter((x): x is string => !!x)
   )
 );
-
 const hobbyOptions = computed(() => unique(pages.value.map((p) => p.hobby)));
 const dreamJobOptions = computed(() => unique(pages.value.map((p) => p.dreamJob)));
 
-// Kombinierter Filter: alle gesetzten Filter müssen passen
+// Kombinierter Filter + Namenssuche
 const filteredPages = computed(() => {
   return pages.value.filter((p) => {
     // Geburtsmonat
@@ -106,38 +110,36 @@ const filteredPages = computed(() => {
     }
 
     // Lieblingsessen
-    if (selectedFood.value) {
-      if (p.favFood !== selectedFood.value) return false;
-    }
+    if (selectedFood.value && p.favFood !== selectedFood.value) return false;
 
     // Lieblingsfarbe
-    if (selectedColor.value) {
-      if (p.favColor !== selectedColor.value) return false;
-    }
+    if (selectedColor.value && p.favColor !== selectedColor.value) return false;
 
-
-    // Alter (aus Geburtsdatum berechnet)
+    // Alter (berechnet)
     if (selectedAge.value) {
       const a = calcAgeFromDate(p.geburtsdatum);
       if (a !== selectedAge.value) return false;
     }
 
-
     // Hobby
-    if (selectedHobby.value) {
-      if (p.hobby !== selectedHobby.value) return false;
-    }
+    if (selectedHobby.value && p.hobby !== selectedHobby.value) return false;
 
     // Traumberuf
-    if (selectedDreamJob.value) {
-      if (p.dreamJob !== selectedDreamJob.value) return false;
+    if (selectedDreamJob.value && p.dreamJob !== selectedDreamJob.value)
+      return false;
+
+    // 🔍 Namenssuche (case-insensitive, enthält)
+    const q = searchName.value.trim().toLowerCase();
+    if (q) {
+      const name = (p.name ?? "").toLowerCase();
+      if (!name.includes(q)) return false;
     }
 
     return true;
   });
 });
 
-// Wenn irgendein Filter sich ändert → im Buchmodus wieder zum Cover
+// Wenn Filter/Suche sich ändern → im Buchmodus wieder zum Cover
 watch(
   [
     selectedMonth,
@@ -146,6 +148,7 @@ watch(
     selectedAge,
     selectedHobby,
     selectedDreamJob,
+    searchName,
   ],
   () => {
     pageIndex.value = -1;
@@ -159,6 +162,7 @@ function resetFilter() {
   selectedAge.value = null;
   selectedHobby.value = null;
   selectedDreamJob.value = null;
+  searchName.value = "";
 }
 
 // -------------------- DATA LOAD (AUTH) --------------------
@@ -180,7 +184,6 @@ async function loadPages() {
     const data = await res.json();
     pages.value = data.sort((a: any, b: any) => a.id - b.id);
 
-    // Start: erste Seite, falls vorhanden
     pageIndex.value = pages.value.length > 0 ? 0 : -1;
   } catch (e: any) {
     error.value = e?.message ?? String(e);
@@ -204,7 +207,6 @@ const next = () =>
   pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++;
 const prev = () => pageIndex.value >= 0 && pageIndex.value--;
 
-
 // -------------------- DELETE (AUTH) --------------------
 async function deleteEntry(id: number) {
   const confirmed = window.confirm("Willst du diesen Eintrag wirklich löschen?");
@@ -226,7 +228,6 @@ async function deleteEntry(id: number) {
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
-    // lokal entfernen
     pages.value = pages.value.filter((p) => p.id !== id);
 
     if (!isFilterActive.value) {
@@ -248,7 +249,25 @@ async function deleteEntry(id: number) {
 
 <template>
   <div>
-    <!-- 🔝 oben: Kalender-Button + Filter-Toggle-Button -->
+    <!-- 🔍 EXTRA SUCHLEISTE (immer sichtbar) -->
+    <div class="search-bar">
+      <input
+        v-model="searchName"
+        type="text"
+        class="search-input"
+        placeholder="Nach Freund*in suchen …"
+      />
+      <button
+        v-if="searchName"
+        class="search-clear"
+        type="button"
+        @click="searchName = ''"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- 🔝 Button zum Ein-/Ausblenden der Filter -->
     <div class="top-bar">
       <button
         class="filter-toggle-btn"
@@ -344,7 +363,7 @@ async function deleteEntry(id: number) {
       </p>
     </div>
 
-    <!-- 📖 Buch-Ansicht (kein Filter aktiv) -->
+    <!-- 📖 Buch-Ansicht (wenn NICHTS gefiltert/gesucht wird) -->
     <template v-if="!isFilterActive">
       <BookCover v-if="pageIndex < 0" />
 
@@ -368,10 +387,10 @@ async function deleteEntry(id: number) {
       />
     </template>
 
-    <!-- 📋 Listen-Ansicht (mindestens ein Filter aktiv) -->
+    <!-- 📋 Listen-Ansicht (wenn Suche/Filter aktiv) -->
     <template v-else>
       <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
-        Keine Einträge mit diesen Filterkriterien gefunden.
+        Keine Einträge mit diesen Kriterien gefunden.
       </p>
 
       <div v-else class="list">
@@ -388,13 +407,55 @@ async function deleteEntry(id: number) {
 </template>
 
 <style scoped>
+/* 🔍 Suchleiste */
+.search-bar {
+  margin: 10px 10px 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+}
+
+.search-clear {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.6;
+}
+.search-clear:hover {
+  opacity: 1;
+}
+
+/* Button-Zeile für Filter-Toggle */
 .top-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px 10px 4px;
+  margin: 0 10px 4px;
 }
 
+.filter-toggle-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+.filter-toggle-btn:hover {
+  background: #111827;
+  color: white;
+}
+
+/* Filterleiste */
 .filter-bar {
   margin: 10px;
   padding: 10px 12px;
