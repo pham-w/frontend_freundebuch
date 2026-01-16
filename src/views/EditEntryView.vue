@@ -23,7 +23,6 @@ const form = reactive({
   dreamJob: "",
 });
 
-// 1) Daten laden (GET braucht bei dir kein userId)
 onMounted(async () => {
   try {
     const res = await fetch(`${API_BASE}/seite/${id}`);
@@ -44,7 +43,6 @@ onMounted(async () => {
   }
 });
 
-// 2) Speichern (PUT braucht userId als Query)
 async function save() {
   error.value = null;
 
@@ -76,3 +74,40 @@ async function save() {
   }
 }
 </script>
+
+<template>
+  <main style="padding: 20px; display: grid; gap: 12px;">
+    <button @click="router.push('/')" style="width: fit-content;">
+      ← Zurück
+    </button>
+
+    <h1 style="margin: 0;">Eintrag bearbeiten (ID: {{ id }})</h1>
+
+    <p v-if="loading">Lade Daten…</p>
+    <p v-else-if="error">Fehler: {{ error }}</p>
+
+    <form
+      v-else
+      @submit.prevent="save"
+      style="display:grid; gap:10px; max-width:520px;"
+    >
+      <label> Name <input v-model.trim="form.name" /> </label>
+      <label>
+        Alter
+        <input v-model.number="form.age" type="number" min="0" max="120" />
+      </label>
+      <label>
+        Geburtsdatum
+        <input v-model="form.geburtsdatum" type="date" />
+      </label>
+      <label> Lieblingsfarbe <input v-model.trim="form.favColor" /> </label>
+      <label> Hobby <input v-model.trim="form.hobby" /> </label>
+      <label> Lieblingsessen <input v-model.trim="form.favFood" /> </label>
+      <label> Traumberuf <input v-model.trim="form.dreamJob" /> </label>
+
+      <button type="submit" :disabled="saving">
+        {{ saving ? "Speichere…" : "Änderungen speichern" }}
+      </button>
+    </form>
+  </main>
+</template>
