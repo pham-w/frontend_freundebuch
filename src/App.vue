@@ -22,13 +22,6 @@ function closeSplash() {
       <RouterLink :to="{ name: 'home' }" class="logo-link">
         <Logo />
       </RouterLink>
-
-      <!-- optional: kleine Navigation -->
-      <nav class="main-nav">
-        <RouterLink :to="{ name: 'home' }">Freundebuch</RouterLink>
-        <RouterLink :to="{ name: 'new-entry' }">Neuer Eintrag</RouterLink>
-        <RouterLink :to="{ name: 'calendar' }">Kalender</RouterLink>
-      </nav>
     </header>
 
     <main class="app-main">
@@ -45,9 +38,6 @@ function closeSplash() {
 }
 
 .app-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   padding: 10px 16px;
 }
 
@@ -61,21 +51,6 @@ function closeSplash() {
   width: 80px;
   height: 80px;
   cursor: pointer;
-}
-
-.main-nav {
-  display: flex;
-  gap: 10px;
-  font-size: 14px;
-}
-
-.main-nav a {
-  text-decoration: none;
-}
-
-.main-nav a.router-link-active {
-  font-weight: 600;
-  text-decoration: underline;
 }
 
 .app-main {
