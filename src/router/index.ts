@@ -5,7 +5,6 @@ import NewEntryView from "@/views/NewEntryView.vue";
 import EditEntryView from "@/views/EditEntryView.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
-import KalenderView from "@/views/KalenderView.vue";
 import { isLoggedIn } from "@/services/authStore";
 
 const router = createRouter({
@@ -19,7 +18,6 @@ const router = createRouter({
     { path: "/", name: "home", component: HomeView, meta: { requiresAuth: true } },
     { path: "/new", name: "new-entry", component: NewEntryView, meta: { requiresAuth: true } },
     { path: "/edit/:id", name: "edit-entry", component: EditEntryView, meta: { requiresAuth: true } },
-    { path: "/calender", name: "calender", component: KalenderView, meta: { requiresAuth: true } },
 
     // Fallback
     { path: "/:pathMatch(.*)*", redirect: "/" },

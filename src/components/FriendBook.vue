@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useRouter } from "vue-router";
 import FriendPage from "./FriendPage.vue";
 import BookCover from "./BookCover.vue";
 import BookControls from "./BookControls.vue";
@@ -205,11 +204,6 @@ const next = () =>
   pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++;
 const prev = () => pageIndex.value >= 0 && pageIndex.value--;
 
-// -------------------- KALENDER-NAVIGATION --------------------
-const router = useRouter();
-function goToCalendar() {
-  router.push("/calendar");
-}
 
 // -------------------- DELETE (AUTH) --------------------
 async function deleteEntry(id: number) {
@@ -256,10 +250,6 @@ async function deleteEntry(id: number) {
   <div>
     <!-- 🔝 oben: Kalender-Button + Filter-Toggle-Button -->
     <div class="top-bar">
-      <button class="calendar-btn" type="button" @click="goToCalendar">
-        📅 Geburtstagskalender anzeigen
-      </button>
-
       <button
         class="filter-toggle-btn"
         type="button"
@@ -403,22 +393,6 @@ async function deleteEntry(id: number) {
   flex-wrap: wrap;
   gap: 8px;
   margin: 10px 10px 4px;
-}
-
-.calendar-btn,
-.filter-toggle-btn {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.calendar-btn:hover,
-.filter-toggle-btn:hover {
-  background: #111827;
-  color: white;
 }
 
 .filter-bar {
