@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
 import FriendPage from "./FriendPage.vue";
 import BookCover from "./BookCover.vue";
 import BookControls from "./BookControls.vue";
@@ -182,6 +183,12 @@ const next = () =>
   pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++;
 const prev = () => pageIndex.value >= 0 && pageIndex.value--;
 
+// -------------------- KALENDER-NAVIGATION --------------------
+const router = useRouter();
+function goToCalendar() {
+  router.push("/calendar");
+}
+
 // -------------------- DELETE (AUTH) --------------------
 async function deleteEntry(id: number) {
   const confirmed = window.confirm("Willst du diesen Eintrag wirklich löschen?");
@@ -227,6 +234,11 @@ async function deleteEntry(id: number) {
 
 <template>
   <div>
+    <!-- 📅 Kalender-Button -->
+    <button class="calendar-btn" type="button" @click="goToCalendar">
+      📅 Geburtstagskalender anzeigen
+    </button>
+
     <p v-if="loading">Lade Freundebuch…</p>
     <p v-if="error">Fehler: {{ error }}</p>
 
@@ -356,6 +368,22 @@ async function deleteEntry(id: number) {
 </template>
 
 <style scoped>
+.calendar-btn {
+  margin: 10px;
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.calendar-btn:hover {
+  background: #111827;
+  color: white;
+}
+
 .filter-bar {
   margin: 10px;
   padding: 10px 12px;

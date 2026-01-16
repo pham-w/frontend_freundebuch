@@ -1,4 +1,5 @@
 import './assets/main.css'
+import '@fullcalendar/daygrid/main.css'   // ⬅️ FullCalendar-CSS
 
 import { createApp } from 'vue'
 import App from './App.vue'
