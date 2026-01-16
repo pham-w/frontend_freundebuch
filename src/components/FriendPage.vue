@@ -1,10 +1,31 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRouter } from "vue-router";
+
 
 const router = useRouter();
 
 // Props holen
 const props = defineProps<{ person: any; visible: boolean }>();
+function calcAge(birthDate: string | null | undefined): number | null {
+  if (!birthDate) return null;
+
+  const birth = new Date(birthDate);
+  const today = new Date();
+
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+
+  return age;
+}
+
+const displayAge = computed(() => {
+  // falls Backend doch age liefert -> nutzen
+  if (props.person?.age != null) return props.person.age;
+  // sonst aus Geburtsdatum berechnen
+  return calcAge(props.person?.geburtsdatum);
+});
 
 // Events nach oben (an FriendBook) schicken
 const emit = defineEmits<{
@@ -25,7 +46,7 @@ function deleteEntry() {
     <h2>{{ person.name }}</h2>
 
     <ul>
-      <li>Alter: {{ person.age }}</li>
+      <li>Alter: {{ displayAge ?? "—" }}</li>
       <li>Geburtsdatum: {{ person.geburtsdatum }}</li>
       <li>Lieblingsfarbe: {{ person.favColor }}</li>
       <li>Hobby: {{ person.hobby }}</li>

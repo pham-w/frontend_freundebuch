@@ -40,6 +40,16 @@ function unique(values: string[]) {
   );
 }
 
+function calcAgeFromDate(d: string | null | undefined): string | null {
+  if (!d) return null;
+  const birth = new Date(d);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return String(age);
+}
+
 const monthNames: Record<string, string> = {
   "01": "Januar",
   "02": "Februar",
@@ -73,7 +83,14 @@ const monthOptions = computed(() => {
 
 const foodOptions = computed(() => unique(pages.value.map((p) => p.favFood)));
 const colorOptions = computed(() => unique(pages.value.map((p) => p.favColor)));
-const ageOptions = computed(() => unique(pages.value.map((p) => String(p.age))));
+const ageOptions = computed(() =>
+  unique(
+    pages.value
+      .map((p) => calcAgeFromDate(p.geburtsdatum))
+      .filter((x): x is string => !!x)
+  )
+);
+
 const hobbyOptions = computed(() => unique(pages.value.map((p) => p.hobby)));
 const dreamJobOptions = computed(() => unique(pages.value.map((p) => p.dreamJob)));
 
@@ -99,10 +116,13 @@ const filteredPages = computed(() => {
       if (p.favColor !== selectedColor.value) return false;
     }
 
-    // Alter
+
+    // Alter (aus Geburtsdatum berechnet)
     if (selectedAge.value) {
-      if (String(p.age) !== selectedAge.value) return false;
+      const a = calcAgeFromDate(p.geburtsdatum);
+      if (a !== selectedAge.value) return false;
     }
+
 
     // Hobby
     if (selectedHobby.value) {
@@ -382,8 +402,7 @@ async function deleteEntry(id: number) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px;
-  margin-bottom: 4px;
+  margin: 10px 10px 4px;
 }
 
 .calendar-btn,
