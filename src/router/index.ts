@@ -19,7 +19,7 @@ const router = createRouter({
     { path: "/", name: "home", component: HomeView, meta: { requiresAuth: true } },
     { path: "/new", name: "new-entry", component: NewEntryView, meta: { requiresAuth: true } },
     { path: "/edit/:id", name: "edit-entry", component: EditEntryView, meta: { requiresAuth: true } },
-    { path: "/calender", name: "kalender", component: KalenderView, meta: { requiresAuth: true } },
+    { path: "/calender", name: "calender", component: KalenderView, meta: { requiresAuth: true } },
 
     // Fallback
     { path: "/:pathMatch(.*)*", redirect: "/" },
