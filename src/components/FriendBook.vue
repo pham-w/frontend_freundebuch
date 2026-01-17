@@ -249,23 +249,26 @@ async function deleteEntry(id: number) {
 
 <template>
   <div>
-    <!-- 🔍 EXTRA SUCHLEISTE (immer sichtbar) -->
-    <div class="search-bar">
+    <!-- Suchleiste -->
+    <div class="search-wrapper">
       <input
         v-model="searchName"
         type="text"
+        placeholder="Nach Freund suchen…"
         class="search-input"
-        placeholder="Nach Freund*in suchen …"
       />
+
       <button
         v-if="searchName"
-        class="search-clear"
         type="button"
+        class="search-clear"
         @click="searchName = ''"
+        aria-label="Suche löschen"
       >
-        ✕
+        ×
       </button>
     </div>
+
 
     <!-- 🔝 Button zum Ein-/Ausblenden der Filter -->
     <div class="top-bar">
@@ -407,31 +410,38 @@ async function deleteEntry(id: number) {
 </template>
 
 <style scoped>
-/* 🔍 Suchleiste */
-.search-bar {
-  margin: 10px 10px 4px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.search-wrapper {
+  position: relative;
+  max-width: 260px;
+  margin: 0 10px 10px;
 }
 
 .search-input {
-  flex: 1;
-  padding: 7px 12px;
+  width: 100%;
+  padding: 6px 30px 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  border: 1px solid #fff;
+  background: #f9fafb;
   font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
 }
 
 .search-clear {
-  background: transparent;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   border: none;
+  background: transparent;
   cursor: pointer;
-  font-size: 14px;
-  opacity: 0.6;
-}
-.search-clear:hover {
-  opacity: 1;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  color: #111827;
 }
 
 /* Button-Zeile für Filter-Toggle */
