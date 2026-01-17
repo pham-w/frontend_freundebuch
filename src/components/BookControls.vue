@@ -1,19 +1,51 @@
 <script setup lang="ts">
 defineProps<{ hasPrev: boolean; hasNext: boolean }>()
-defineEmits(['prev', 'next'])
+defineEmits(["prev", "next"])
 </script>
 
 <template>
-  <div class="controls">
-    <button @click="$emit('prev')" :disabled="!hasPrev">← Zurück</button>
-    <button @click="$emit('next')" :disabled="!hasNext">Weiter →</button>
-  </div>
+  <button
+    class="nav-btn left"
+    :disabled="!hasPrev"
+    @click="$emit('prev')"
+    aria-label="Zurück"
+  >
+    ‹
+  </button>
+
+  <button
+    class="nav-btn right"
+    :disabled="!hasNext"
+    @click="$emit('next')"
+    aria-label="Weiter"
+  >
+    ›
+  </button>
 </template>
 
 <style scoped>
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: white;
+  color: #181818;
+  font-size: 26px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+}
+
+.left {
+  left: -80px;
+}
+
+.right {
+  right: -80px;
 }
 </style>

@@ -183,13 +183,13 @@ label {
 
 input {
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 button {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 0;
   background: #111827;
   color: white;

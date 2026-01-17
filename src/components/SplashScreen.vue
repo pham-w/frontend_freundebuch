@@ -22,7 +22,7 @@ function close() {
 
         <text class="arc-text">
           <textPath href="#arcPath" startOffset="50%" text-anchor="middle">
-            Klick auf mich!
+            *°⋆.ೃ❀࿔*Klick auf mich⋆❀.ೃ࿔*:･
           </textPath>
         </text>
       </svg>
@@ -40,7 +40,7 @@ function close() {
 .splash {
   position: fixed;
   inset: 0;
-  background: #a2726d;
+  background: #192b51;
   display: grid;
   place-items: center;
   z-index: 9999;
@@ -57,12 +57,12 @@ function close() {
 .arc {
   width: min(520px, 90vw);
   height: auto;
-  margin-bottom: -8px;
+  margin-bottom: -30px;
+  transform: translateY(-70px);
 }
 
 .arc-text {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   fill: rgba(255, 255, 255, 0.92);
@@ -73,7 +73,7 @@ function close() {
   background: transparent;
   padding: 0;
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: 12px;
   transform:scale(3.0);
 }
 

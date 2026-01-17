@@ -71,6 +71,7 @@ function deleteEntry() {
 <style scoped>
 .page {
   border: 1px solid #ddd;
+  border-radius: 12px;
   padding: 20px;
   margin: 10px;
   background: #fff;
@@ -87,7 +88,7 @@ function deleteEntry() {
 /* Bearbeiten-Button */
 .edit-btn {
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid rgba(0,0,0,0.25);
   background: white;
   cursor: pointer;
@@ -102,7 +103,7 @@ function deleteEntry() {
 /* Löschen-Button */
 .delete-btn {
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid #b91c1c;
   background: #fee2e2;
   color: #b91c1c;

@@ -374,20 +374,22 @@ async function deleteEntry(id: number) {
         Noch keine Einträge vorhanden.
       </p>
 
-      <FriendPage
-        v-for="(p, i) in filteredPages"
-        :key="p.id"
-        :person="p"
-        :visible="i === pageIndex"
-        @deleted="deleteEntry"
-      />
+      <div class="book-page-wrapper" v-if="filteredPages.length">
+        <BookControls
+          :hasPrev="pageIndex > 0"
+          :hasNext="pageIndex < filteredPages.length - 1"
+          @prev="prev"
+          @next="next"
+        />
 
-      <BookControls
-        :hasPrev="pageIndex >= 0"
-        :hasNext="pageIndex < filteredPages.length - 1"
-        @next="next"
-        @prev="prev"
-      />
+        <FriendPage
+          v-for="(p, i) in filteredPages"
+          :key="p.id"
+          :person="p"
+          :visible="i === pageIndex"
+          @deleted="deleteEntry"
+        />
+      </div>
     </template>
 
     <!-- 📋 Listen-Ansicht (wenn Suche/Filter aktiv) -->
@@ -410,6 +412,12 @@ async function deleteEntry(id: number) {
 </template>
 
 <style scoped>
+.book-page-wrapper {
+  position: relative;
+  margin: 20px auto;
+  max-width: 520px;
+}
+
 .search-wrapper {
   position: relative;
   max-width: 260px;
@@ -419,7 +427,7 @@ async function deleteEntry(id: number) {
 .search-input {
   width: 100%;
   padding: 6px 30px 6px 12px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid #fff;
   background: #f9fafb;
   font-size: 14px;
@@ -454,7 +462,7 @@ async function deleteEntry(id: number) {
 
 .filter-toggle-btn {
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   background: white;
   cursor: pointer;
@@ -469,7 +477,7 @@ async function deleteEntry(id: number) {
 .filter-bar {
   margin: 10px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: rgba(255, 255, 255, 0.85);
 }
@@ -491,13 +499,13 @@ label {
 
 select {
   padding: 6px 8px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .reset-btn {
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 0;
   background: rgba(0, 0, 0, 0.08);
   cursor: pointer;

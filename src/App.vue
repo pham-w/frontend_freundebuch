@@ -55,8 +55,8 @@ const username = computed(() => authUser.value?.name ?? "");
 .app-header {
   padding: 10px 16px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-around;
+  align-items: normal;
 }
 
 .logo-link {
@@ -87,7 +87,7 @@ const username = computed(() => authUser.value?.name ?? "");
 .logout-btn {
   padding: 6px 12px;
   font-size: 14px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: none;
   background-color: #e11d48; /* z.B. Tailwind: rose-600 */
   color: white;
