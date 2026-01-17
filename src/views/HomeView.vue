@@ -1,34 +1,20 @@
 <script setup lang="ts">
 import FriendBook from "@/components/FriendBook.vue";
 import { useRouter } from "vue-router";
-import { authUser, logout } from "@/services/authStore";
 
 const router = useRouter();
 
-function onLogout() {
-  logout();
-  router.push("/login");
-}
 </script>
-
 
 <template>
   <main class="page">
     <div class="topbar">
-      <h1 class="title">Mein Freundebuch</h1>
-
-      <div class="right" v-if="authUser">
-        <span>{{ authUser.name }}</span>
-
+      <div class="right">
         <button class="logout-btn" @click="router.push('/new')">
-          ➕ Neu
+          ➕ Neuer Eintrag
         </button>
-
-        <button class="logout-btn" @click="onLogout">Logout</button>
       </div>
-
     </div>
-
     <FriendBook />
   </main>
 </template>
