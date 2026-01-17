@@ -4,7 +4,7 @@ import { API_BASE } from "@/services/api";
 import { authUser } from "@/services/authStore";
 import { computed, onMounted, reactive, ref } from "vue";
 
-
+const today = new Date().toISOString().slice(0, 10);
 const route = useRoute();
 const router = useRouter();
 
@@ -121,7 +121,7 @@ async function save() {
       </label>
       <label>
         Geburtsdatum
-        <input v-model="form.geburtsdatum" type="date" />
+        <input v-model="form.geburtsdatum" type="date" :max="today" />
       </label>
       <label> Lieblingsfarbe <input v-model.trim="form.favColor" /> </label>
       <label> Hobby <input v-model.trim="form.hobby" /> </label>

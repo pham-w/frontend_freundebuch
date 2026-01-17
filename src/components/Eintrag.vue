@@ -26,7 +26,7 @@ const form = reactive<FriendPayload>({
 const loading = ref(false);
 const error = ref<string | null>(null);
 const success = ref(false);
-
+const today = new Date().toISOString().slice(0, 10);
 const emit = defineEmits<{
   (e: "created"): void;
 }>();
@@ -56,6 +56,10 @@ async function submit() {
   }
   if (!form.geburtsdatum) {
     error.value = "Bitte Geburtsdatum auswählen.";
+    return;
+  }
+  if (form.geburtsdatum > today) {
+    error.value = "Geburtsdatum darf nicht in der Zukunft liegen.";
     return;
   }
   const userId = authUser.value?.id;
@@ -127,7 +131,7 @@ async function submit() {
 
     <label>
       Geburtsdatum
-      <input v-model="form.geburtsdatum" type="date" />
+      <input v-model="form.geburtsdatum" type="date" :max="today" />
     </label>
 
     <label>
