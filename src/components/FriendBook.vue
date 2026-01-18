@@ -376,6 +376,7 @@ async function deleteEntry(id: number) {
 
       <template v-else>
         <div class="book">
+          <!-- 1) BUCHMODUS -->
           <template v-if="!isFilterActive">
             <div class="book-frame">
               <BookControls
@@ -392,11 +393,11 @@ async function deleteEntry(id: number) {
                 class="sheet"
                 :title="emptyMode === 'noFavorites' ? 'Keine Favoriten' : 'Sie haben noch keine Einträge'"
                 :message="emptyMode === 'noFavorites'
-    ? 'Du hast noch keine Favoriten markiert.'
-    : 'Du hast noch keine Einträge erstellt.'"
+          ? 'Du hast noch keine Favoriten markiert.'
+          : 'Du hast noch keine Einträge erstellt.'"
                 :hint="emptyMode === 'noFavorites'
-    ? 'Tippe bei einem Eintrag auf ☆, um ihn zu den Favoriten hinzuzufügen.'
-    : 'Klicke oben auf „Neuer Eintrag“, um deinen ersten Eintrag zu erstellen.'"
+          ? 'Tippe bei einem Eintrag auf ☆, um ihn zu den Favoriten hinzuzufügen.'
+          : 'Klicke oben auf „Neuer Eintrag“, um deinen ersten Eintrag zu erstellen.'"
               />
 
               <FriendPage
@@ -410,6 +411,25 @@ async function deleteEntry(id: number) {
               />
             </div>
           </template>
+
+          <!-- 2) LISTENMODUS (SUCHE/FILTER AKTIV) -->
+          <template v-else>
+            <p v-if="filteredPages.length === 0" class="empty">
+              Keine Einträge gefunden.
+            </p>
+
+            <div v-else class="list">
+              <FriendPage
+                v-for="p in filteredPages"
+                :key="p.id"
+                :person="p"
+                :visible="true"
+                :isFavorite="favoriteSet.has(p.id)"
+                @toggle-favorite="toggleFav(p.id)"
+                @deleted="deleteEntry"
+              />
+            </div>
+      </template>
         </div>
       </template>
     </main>
@@ -543,6 +563,11 @@ async function deleteEntry(id: number) {
   margin: 0;
   opacity: 0.8;
   max-width: 46ch;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
 }
 
 </style>
