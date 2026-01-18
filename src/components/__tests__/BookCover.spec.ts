@@ -6,8 +6,8 @@ describe("BookCover.vue", () => {
   it("zeigt Badge, Titel, Hinweis-Punkte und Spine an", () => {
     const wrapper = mount(BookCover);
 
-    // Container vorhanden
-    expect(wrapper.get(".cover").exists()).toBe(true);
+    // Container vorhanden (sicher prüfen mit find().exists())
+    expect(wrapper.find(".cover").exists()).toBe(true);
 
     // Badge vorhanden und korrekt
     const badge = wrapper.get(".badge");
