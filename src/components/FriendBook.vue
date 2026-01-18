@@ -269,10 +269,8 @@ async function deleteEntry(id: number) {
 
 <template>
   <div class="layout">
-
     <!-- SIDEBAR LINKS -->
     <div class="sidebar">
-
       <!-- Suchleiste -->
       <div class="search-wrapper">
         <input
@@ -305,7 +303,6 @@ async function deleteEntry(id: number) {
       <!-- FILTERLEISTE -->
       <div v-if="showFilters" class="filter-bar">
         <div class="filter-row">
-
           <label>
             Geburtsmonat:
             <select v-model="selectedMonth">
@@ -369,61 +366,71 @@ async function deleteEntry(id: number) {
           <button class="reset-btn" type="button" @click="resetFilter">
             Filter zurücksetzen
           </button>
-
         </div>
       </div>
     </div>
 
     <!-- CONTENT BEREICH (RECHTS) -->
     <div class="content">
+      <!-- Loading / Error / Empty State -->
+      <p v-if="loading" class="empty">Lädt…</p>
+      <p v-else-if="error" class="empty">Fehler: {{ error }}</p>
 
-      <!-- Buch-Ansicht -->
-      <template v-if="!isFilterActive">
-        <BookCover v-if="pageIndex < 0" />
+      <!-- wirklich keine Einträge insgesamt -->
+      <p v-else-if="pages.length === 0" class="empty big">
+        Sie haben noch keine Einträge.
+      </p>
 
-        <div v-if="filteredPages.length" class="book-page-wrapper">
-          <BookControls
-            :hasPrev="pageIndex > 0"
-            :hasNext="pageIndex < filteredPages.length - 1"
-            @prev="prev"
-            @next="next"
-          />
-
-          <FriendPage
-            v-for="(p, i) in filteredPages"
-            :key="p.id"
-            :person="p"
-            :visible="i === pageIndex"
-            :isFavorite="favoriteSet.has(p.id)"
-            @toggle-favorite="toggleFav(p.id)"
-            @deleted="deleteEntry"
-          />
-        </div>
-      </template>
-
-      <!-- Listenansicht -->
+      <!-- Rest nur anzeigen, wenn es Einträge gibt -->
       <template v-else>
-        <p v-if="filteredPages.length === 0" class="empty">
-          Keine Einträge gefunden.
-        </p>
+        <!-- Buch-Ansicht -->
+        <template v-if="!isFilterActive">
+          <BookCover v-if="pageIndex < 0" />
 
-        <div class="list" v-else>
-          <FriendPage
-            v-for="p in filteredPages"
-            :key="p.id"
-            :person="p"
-            :visible="true"
-            :isFavorite="favoriteSet.has(p.id)"
-            @toggle-favorite="toggleFav(p.id)"
-            @deleted="deleteEntry"
-          />
-        </div>
+          <div v-if="filteredPages.length" class="book-page-wrapper">
+            <BookControls
+              :hasPrev="pageIndex > 0"
+              :hasNext="pageIndex < filteredPages.length - 1"
+              @prev="prev"
+              @next="next"
+            />
+
+            <FriendPage
+              v-for="(p, i) in filteredPages"
+              :key="p.id"
+              :person="p"
+              :visible="i === pageIndex"
+              :isFavorite="favoriteSet.has(p.id)"
+              @toggle-favorite="toggleFav(p.id)"
+              @deleted="deleteEntry"
+            />
+          </div>
+        </template>
+
+        <!-- Listenansicht -->
+        <template v-else>
+          <p v-if="filteredPages.length === 0" class="empty">
+            Keine Einträge gefunden.
+          </p>
+
+          <div class="list" v-else>
+            <FriendPage
+              v-for="p in filteredPages"
+              :key="p.id"
+              :person="p"
+              :visible="true"
+              :isFavorite="favoriteSet.has(p.id)"
+              @toggle-favorite="toggleFav(p.id)"
+              @deleted="deleteEntry"
+            />
+          </div>
+        </template>
       </template>
-
     </div>
-
   </div>
 </template>
+
+
 
 <style scoped>
 
@@ -506,6 +513,11 @@ async function deleteEntry(id: number) {
 
 .empty {
   opacity: 0.7;
+}
+.empty.big {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 1.05rem;
 }
 
 </style>
