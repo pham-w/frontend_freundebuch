@@ -6,12 +6,27 @@ import BookControls from "./BookControls.vue";
 import { getFavoriteIds, toggleFavoriteId } from "@/services/favoritesStore";
 import { API_BASE } from "@/services/api";
 import { authUser } from "@/services/authStore";
+import EmptyPage from "./EmptyPage.vue";
+
 
 const pages = ref<any[]>([]);
 const pageIndex = ref(-1);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const props = defineProps<{ showOnlyFavs?: boolean; search?: string; showFilters?: boolean; }>();
+
+const hasAnyEntries = computed(() => pages.value.length > 0);
+const hasAnyFiltered = computed(() => filteredPages.value.length > 0);
+
+const emptyMode = computed<"none" | "noEntries" | "noFavorites">(() => {
+  if (hasAnyFiltered.value) return "none";
+
+  // Favoriten-Modus an, aber es gibt Einträge -> dann sind nur keine Favoriten da
+  if (props.showOnlyFavs && hasAnyEntries.value) return "noFavorites";
+
+  // sonst: wirklich gar keine Einträge (oder nicht eingeloggt etc.)
+  return "noEntries";
+});
 
 const emit = defineEmits<{
   (e: "update:search", value: string): void;
@@ -216,7 +231,7 @@ async function loadPages() {
     const data = await res.json();
     pages.value = data.sort((a: any, b: any) => a.id - b.id);
     refreshFavorites();
-    pageIndex.value = pages.value.length > 0 ? 0 : -1;
+    pageIndex.value = pages.value.length > 0 ? -1 : -1;
   } catch (e: any) {
     error.value = e?.message ?? String(e);
   } finally {
@@ -235,10 +250,20 @@ watch(
   { immediate: true }
 );
 
-// -------------------- BLÄTTERN --------------------
-const next = () =>
-  pageIndex.value < filteredPages.value.length - 1 && pageIndex.value++;
-const prev = () => pageIndex.value >= 0 && pageIndex.value--;
+function next() {
+  // Cover -> Empty page
+  if (filteredPages.value.length === 0) {
+    if (pageIndex.value < 0) pageIndex.value = 0;
+    return;
+  }
+
+  if (pageIndex.value < 0) { pageIndex.value = 0; return; }
+  if (pageIndex.value < filteredPages.value.length - 1) pageIndex.value++;
+}
+
+function prev() {
+  if (pageIndex.value >= 0) pageIndex.value--;
+}
 
 // -------------------- DELETE (AUTH) --------------------
 async function deleteEntry(id: number) {
@@ -352,41 +377,35 @@ async function deleteEntry(id: number) {
       <template v-else>
         <div class="book">
           <template v-if="!isFilterActive">
-            <BookCover v-if="pageIndex < 0" />
-
-            <div v-if="filteredPages.length" class="book-page-wrapper">
+            <div class="book-frame">
               <BookControls
-                :hasPrev="pageIndex > 0"
-                :hasNext="pageIndex < filteredPages.length - 1"
+                :hasPrev="pageIndex >= 0"
+                :hasNext="pageIndex < 0 || pageIndex < filteredPages.length - 1"
                 @prev="prev"
                 @next="next"
               />
 
-              <FriendPage
-                v-for="(p, i) in filteredPages"
-                :key="p.id"
-                :person="p"
-                :visible="i === pageIndex"
-                :isFavorite="favoriteSet.has(p.id)"
-                @toggle-favorite="toggleFav(p.id)"
-                @deleted="deleteEntry"
+              <BookCover v-if="pageIndex < 0" class="sheet" />
+
+              <EmptyPage
+                v-else-if="emptyMode !== 'none'"
+                class="sheet"
+                :title="emptyMode === 'noFavorites' ? 'Keine Favoriten' : 'Sie haben noch keine Einträge'"
+                :message="emptyMode === 'noFavorites'
+    ? 'Du hast noch keine Favoriten markiert.'
+    : 'Du hast noch keine Einträge erstellt.'"
+                :hint="emptyMode === 'noFavorites'
+    ? 'Tippe bei einem Eintrag auf ☆, um ihn zu den Favoriten hinzuzufügen.'
+    : 'Klicke oben auf „Neuer Eintrag“, um deinen ersten Eintrag zu erstellen.'"
               />
-            </div>
-          </template>
 
-          <template v-else>
-            <p v-if="filteredPages.length === 0" class="empty">
-              Keine Einträge gefunden.
-            </p>
-
-            <div class="list" v-else>
               <FriendPage
-                v-for="p in filteredPages"
-                :key="p.id"
-                :person="p"
+                v-else
+                class="sheet"
+                :person="filteredPages[pageIndex]"
                 :visible="true"
-                :isFavorite="favoriteSet.has(p.id)"
-                @toggle-favorite="toggleFav(p.id)"
+                :isFavorite="favoriteSet.has(filteredPages[pageIndex].id)"
+                @toggle-favorite="toggleFav(filteredPages[pageIndex].id)"
                 @deleted="deleteEntry"
               />
             </div>
@@ -420,19 +439,20 @@ async function deleteEntry(id: number) {
   width: min(1200px, 96vw);
 }
 
-/* Wrapper für Controls + Seite */
-.book-page-wrapper {
+.book-frame {
   position: relative;
-  width: 100%;
+  width: min(860px, 92vw);
+  margin: 24px auto 0;
   display: flex;
   justify-content: center;
+  align-items: stretch;
+  height: 320px;
 }
 
-/* LISTE */
-.list {
-  display: grid;
-  gap: 12px;
+.sheet {
+  width: 100%;
 }
+
 
 /* Filter Overlay */
 .filters {
@@ -514,4 +534,15 @@ async function deleteEntry(id: number) {
 .empty {
   opacity: 0.7;
 }
+
+.empty-sheet h2 {
+  margin: 0 0 8px;
+}
+
+.empty-sheet p {
+  margin: 0;
+  opacity: 0.8;
+  max-width: 46ch;
+}
+
 </style>

@@ -30,10 +30,11 @@ defineEmits(["prev", "next"])
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
+  background: #111827;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
   border-radius: 999px;
-  border: none;
-  background: white;
-  color: #181818;
   font-size: 26px;
   cursor: pointer;
   display: grid;
@@ -47,6 +48,13 @@ defineEmits(["prev", "next"])
 @media (max-width: 900px) {
   .left { left: 8px; }
   .right { right: 8px; }
+}
+.nav-btn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 </style>

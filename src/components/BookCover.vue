@@ -21,27 +21,19 @@
 /* Cover als "Buch" */
 .cover {
   position: relative;
-  width: min(860px, 92vw);
-  height: 320px;
-
-  margin: 24px auto 0;
+  width: 100%;
+  height: 100%;
   border-radius: 22px;
-
-  /* dunkles Blau, passend zur Topbar */
   background: linear-gradient(135deg, #0b1220 0%, #0f1d38 45%, #0b1220 100%);
   border: 1px solid rgba(255,255,255,0.10);
-
-  /* Buch-Shadow */
   box-shadow:
     0 22px 60px rgba(0,0,0,0.55),
     inset 0 1px 0 rgba(255,255,255,0.06);
-
   display: grid;
   place-items: center;
   overflow: hidden;
-
-  cursor: default;
 }
+
 
 /* leichter "Glanz" */
 .cover::before {

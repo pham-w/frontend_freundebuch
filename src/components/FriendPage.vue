@@ -73,15 +73,17 @@ function deleteEntry() {
 
 <style scoped>
 .page {
-  width: min(860px, 92vw);
-  margin: 0 auto;
-  border: 1px solid #ddd;
+  width: 100%;
+  height: 100%;
   border-radius: 12px;
   padding: 20px;
   background: #fff;
   color: #181818;
   position: relative;
+  overflow: auto;
 }
+
+
 
 .fav-star {
   position: absolute;
