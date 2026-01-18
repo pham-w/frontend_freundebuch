@@ -248,30 +248,32 @@ async function deleteEntry(id: number) {
 </script>
 
 <template>
-  <div>
-    <!-- Suchleiste -->
-    <div class="search-wrapper">
-      <input
-        v-model="searchName"
-        type="text"
-        placeholder="Nach Freund suchen…"
-        class="search-input"
-      />
+  <div class="layout">
 
-      <button
-        v-if="searchName"
-        type="button"
-        class="search-clear"
-        @click="searchName = ''"
-        aria-label="Suche löschen"
-      >
-        ×
-      </button>
-    </div>
+    <!-- SIDEBAR LINKS -->
+    <div class="sidebar">
 
+      <!-- Suchleiste -->
+      <div class="search-wrapper">
+        <input
+          v-model="searchName"
+          type="text"
+          placeholder="Nach Freund suchen…"
+          class="search-input"
+        />
 
-    <!-- 🔝 Button zum Ein-/Ausblenden der Filter -->
-    <div class="top-bar">
+        <button
+          v-if="searchName"
+          type="button"
+          class="search-clear"
+          @click="searchName = ''"
+          aria-label="Suche löschen"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Filter Toggle -->
       <button
         class="filter-toggle-btn"
         type="button"
@@ -279,149 +281,169 @@ async function deleteEntry(id: number) {
       >
         {{ showFilters ? "Filter ausblenden" : "Filter anzeigen" }}
       </button>
+
+      <!-- FILTERLEISTE -->
+      <div v-if="showFilters" class="filter-bar">
+        <div class="filter-row">
+
+          <label>
+            Geburtsmonat:
+            <select v-model="selectedMonth">
+              <option :value="null">Alle Monate</option>
+              <option v-for="m in monthOptions" :key="m.value" :value="m.value">
+                {{ m.label }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Alter:
+            <select v-model="selectedAge">
+              <option :value="null">Alle Alter</option>
+              <option v-for="a in ageOptions" :key="a" :value="a">
+                {{ a }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Lieblingsessen:
+            <select v-model="selectedFood">
+              <option :value="null">Alle Essen</option>
+              <option v-for="f in foodOptions" :key="f" :value="f">
+                {{ f }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Lieblingsfarbe:
+            <select v-model="selectedColor">
+              <option :value="null">Alle Farben</option>
+              <option v-for="c in colorOptions" :key="c" :value="c">
+                {{ c }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Hobby:
+            <select v-model="selectedHobby">
+              <option :value="null">Alle Hobbys</option>
+              <option v-for="h in hobbyOptions" :key="h" :value="h">
+                {{ h }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Traumberuf:
+            <select v-model="selectedDreamJob">
+              <option :value="null">Alle Traumberufe</option>
+              <option v-for="d in dreamJobOptions" :key="d" :value="d">
+                {{ d }}
+              </option>
+            </select>
+          </label>
+
+          <button class="reset-btn" type="button" @click="resetFilter">
+            Filter zurücksetzen
+          </button>
+
+        </div>
+      </div>
     </div>
 
-    <p v-if="loading">Lade Freundebuch…</p>
-    <p v-if="error">Fehler: {{ error }}</p>
+    <!-- CONTENT BEREICH (RECHTS) -->
+    <div class="content">
 
-    <!-- FILTERLEISTE – nur wenn showFilters = true -->
-    <div v-if="!loading && !error && showFilters" class="filter-bar">
-      <div class="filter-row">
-        <!-- Geburtsmonat -->
-        <label>
-          Geburtsmonat:
-          <select v-model="selectedMonth">
-            <option :value="null">Alle Monate</option>
-            <option v-for="m in monthOptions" :key="m.value" :value="m.value">
-              {{ m.label }}
-            </option>
-          </select>
-        </label>
+      <!-- Buch-Ansicht -->
+      <template v-if="!isFilterActive">
+        <BookCover v-if="pageIndex < 0" />
 
-        <!-- Alter -->
-        <label>
-          Alter:
-          <select v-model="selectedAge">
-            <option :value="null">Alle Alter</option>
-            <option v-for="a in ageOptions" :key="a" :value="a">
-              {{ a }}
-            </option>
-          </select>
-        </label>
+        <div v-if="filteredPages.length" class="book-page-wrapper">
+          <BookControls
+            :hasPrev="pageIndex > 0"
+            :hasNext="pageIndex < filteredPages.length - 1"
+            @prev="prev"
+            @next="next"
+          />
 
-        <!-- Lieblingsessen -->
-        <label>
-          Lieblingsessen:
-          <select v-model="selectedFood">
-            <option :value="null">Alle Essen</option>
-            <option v-for="f in foodOptions" :key="f" :value="f">
-              {{ f }}
-            </option>
-          </select>
-        </label>
+          <FriendPage
+            v-for="(p, i) in filteredPages"
+            :key="p.id"
+            :person="p"
+            :visible="i === pageIndex"
+            @deleted="deleteEntry"
+          />
+        </div>
+      </template>
 
-        <!-- Lieblingsfarbe -->
-        <label>
-          Lieblingsfarbe:
-          <select v-model="selectedColor">
-            <option :value="null">Alle Farben</option>
-            <option v-for="c in colorOptions" :key="c" :value="c">
-              {{ c }}
-            </option>
-          </select>
-        </label>
+      <!-- Listenansicht -->
+      <template v-else>
+        <p v-if="filteredPages.length === 0" class="empty">
+          Keine Einträge gefunden.
+        </p>
 
-        <!-- Hobby -->
-        <label>
-          Hobby:
-          <select v-model="selectedHobby">
-            <option :value="null">Alle Hobbys</option>
-            <option v-for="h in hobbyOptions" :key="h" :value="h">
-              {{ h }}
-            </option>
-          </select>
-        </label>
+        <div class="list" v-else>
+          <FriendPage
+            v-for="p in filteredPages"
+            :key="p.id"
+            :person="p"
+            :visible="true"
+            @deleted="deleteEntry"
+          />
+        </div>
+      </template>
 
-        <!-- Traumberuf -->
-        <label>
-          Traumberuf:
-          <select v-model="selectedDreamJob">
-            <option :value="null">Alle Traumberufe</option>
-            <option v-for="d in dreamJobOptions" :key="d" :value="d">
-              {{ d }}
-            </option>
-          </select>
-        </label>
-
-        <button class="reset-btn" type="button" @click="resetFilter">
-          Filter zurücksetzen
-        </button>
-      </div>
-
-      <p class="meta">
-        <span v-if="isFilterActive">
-          Gefilterte Einträge: {{ filteredPages.length }} von {{ pages.length }}
-        </span>
-        <span v-else>Einträge gesamt: {{ pages.length }}</span>
-      </p>
     </div>
 
-    <!-- 📖 Buch-Ansicht (wenn NICHTS gefiltert/gesucht wird) -->
-    <template v-if="!isFilterActive">
-      <BookCover v-if="pageIndex < 0" />
-
-      <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
-        Noch keine Einträge vorhanden.
-      </p>
-
-      <div class="book-page-wrapper" v-if="filteredPages.length">
-        <BookControls
-          :hasPrev="pageIndex > 0"
-          :hasNext="pageIndex < filteredPages.length - 1"
-          @prev="prev"
-          @next="next"
-        />
-
-        <FriendPage
-          v-for="(p, i) in filteredPages"
-          :key="p.id"
-          :person="p"
-          :visible="i === pageIndex"
-          @deleted="deleteEntry"
-        />
-      </div>
-    </template>
-
-    <!-- 📋 Listen-Ansicht (wenn Suche/Filter aktiv) -->
-    <template v-else>
-      <p v-if="!loading && !error && filteredPages.length === 0" class="empty">
-        Keine Einträge mit diesen Kriterien gefunden.
-      </p>
-
-      <div v-else class="list">
-        <FriendPage
-          v-for="p in filteredPages"
-          :key="p.id"
-          :person="p"
-          :visible="true"
-          @deleted="deleteEntry"
-        />
-      </div>
-    </template>
   </div>
 </template>
 
 <style scoped>
-.book-page-wrapper {
-  position: relative;
-  margin: 20px auto;
-  max-width: 520px;
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  padding-left: 20px;
 }
 
+/* --- Sidebar links (Suche + Filter) --- */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+
+/* --- Inhalt rechts --- */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* --- Filterbar --- */
+.filter-bar {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* --- Suchfeld --- */
 .search-wrapper {
   position: relative;
-  max-width: 260px;
-  margin: 0 10px 10px;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 .search-input {
@@ -430,12 +452,6 @@ async function deleteEntry(id: number) {
   border-radius: 12px;
   border: 1px solid #fff;
   background: #f9fafb;
-  font-size: 14px;
-  outline: none;
-}
-
-.search-input:focus {
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
 }
 
 .search-clear {
@@ -443,88 +459,29 @@ async function deleteEntry(id: number) {
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
-  color: #111827;
-}
-
-/* Button-Zeile für Filter-Toggle */
-.top-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 10px 4px;
-}
-
-.filter-toggle-btn {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-}
-.filter-toggle-btn:hover {
-  background: #111827;
-  color: white;
-}
-
-/* Filterleiste */
-.filter-bar {
-  margin: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.85);
-}
-
-.filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-label {
-  font-size: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-
-select {
-  padding: 6px 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.reset-btn {
-  padding: 6px 10px;
-  border-radius: 12px;
+  background: none;
   border: 0;
-  background: rgba(0, 0, 0, 0.08);
+  font-size: 18px;
   cursor: pointer;
-  font-size: 13px;
 }
 
-.meta {
-  font-size: 12px;
-  opacity: 0.75;
-  margin-top: 6px;
+
+/* --- Buchseite --- */
+.book-page-wrapper {
+  position: relative;
+  margin: 20px auto;
+  max-width: 520px;
+}
+
+
+/* --- Liste --- */
+.list {
+  display: grid;
+  gap: 12px;
 }
 
 .empty {
-  margin: 10px;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
-.list {
-  display: grid;
-  gap: 8px;
-}
 </style>

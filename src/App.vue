@@ -27,16 +27,22 @@ const username = computed(() => authUser.value?.name ?? "");
   <!-- Header + Home-Button -->
   <div v-else class="app-shell">
     <header class="app-header">
-      <!-- Logo als Home-Button -->
-      <RouterLink :to="{ name: 'home' }" class="logo-link">
-        <Logo />
-      </RouterLink>
 
-      <!-- Begrüßung + Logout  -->
-      <div class="header-right" v-if="authUser">
-        <span class="greeting">Hallo, {{ username }}!</span>
+      <!-- Logo+Begrüßung -->
+      <div class="left">
+        <RouterLink :to="{ name: 'home' }" class="logo-link">
+          <Logo />
+        </RouterLink>
+        <span v-if="authUser" class="greeting">
+          Hallo, {{ username }}!
+        </span>
+      </div>
+
+      <!-- Logout  -->
+      <div class ="right">
         <button class="logout-btn" @click="handleLogout">Logout</button>
       </div>
+
     </header>
 
     <main class="app-main">
@@ -47,58 +53,68 @@ const username = computed(() => authUser.value?.name ?? "");
 
 <style scoped>
 .app-shell {
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
 }
 
+
 .app-header {
-  padding: 10px 16px;
+  width: 100%;
+  padding: 30px 50px 50px;
   display: flex;
-  justify-content: space-around;
-  align-items: normal;
-}
-
-.logo-link {
-  display: inline-flex;
+  justify-content: space-between;
   align-items: center;
-  background: transparent;
+  box-sizing: border-box;
 }
 
-.logo-link svg {
+.left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 50px;
+}
+
+.logo-link,
+.logo-link svg{
   width: 80px;
   height: 80px;
   cursor: pointer;
   background: transparent;
 }
 
-.header-right {
+.right {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
 }
 
 .greeting {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 25px;
+  font-weight: 600;
   color: white;
 }
 
 .logout-btn {
-  padding: 6px 12px;
-  font-size: 14px;
+  padding: 8px 16px;
+  font-size: 15px;
   border-radius: 12px;
   border: none;
-  background-color: #e11d48; /* z.B. Tailwind: rose-600 */
+  background-color: #e11d48;
   color: white;
   cursor: pointer;
 }
 
 .logout-btn:hover {
-  background-color: #be123c; /* dunkler beim Hover */
+  background-color: #be123c;
 }
 
 .app-main {
-  flex: 1;
+  width: 100%;
+  margin-left: 10px;
+  margin-right: auto;
+  padding-left: 20px;
 }
 </style>
