@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { RouterView, RouterLink, useRouter } from "vue-router";
+import { RouterView, RouterLink, useRouter, useRoute } from "vue-router";
 import SplashScreen from "@/components/SplashScreen.vue";
 import Logo from "@/components/Logo.vue";
 import { authUser, logout } from "@/services/authStore";
 
 const router = useRouter();
+const route = useRoute(); // ✅ DAS FEHLT
+
 const showSplash = ref(true);
 
 function closeSplash() {
@@ -18,6 +20,12 @@ function handleLogout() {
 }
 
 const username = computed(() => authUser.value?.name ?? "");
+
+const showLogout = computed(() => {
+  const loggedIn = !!authUser.value; // oder !!authUser.value?.token
+  const isAuthPage = route.name === "login" || route.name === "register";
+  return loggedIn && !isAuthPage;
+});
 </script>
 
 <template>
@@ -39,9 +47,10 @@ const username = computed(() => authUser.value?.name ?? "");
       </div>
 
       <!-- Logout  -->
-      <div class ="right">
-        <button class="logout-btn" @click="handleLogout">Logout</button>
+      <div class="right">
+        <button v-if="showLogout" class="logout-btn" @click="handleLogout">Logout</button>
       </div>
+
 
     </header>
 
