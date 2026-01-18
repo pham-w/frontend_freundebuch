@@ -269,29 +269,8 @@ async function deleteEntry(id: number) {
 
 <template>
   <div class="layout">
-    <!-- SIDEBAR LINKS -->
-    <div class="sidebar">
-      <!-- Suchleiste -->
-      <div class="search-wrapper">
-        <input
-          v-model="searchName"
-          type="text"
-          placeholder="Nach Freund suchen…"
-          class="search-input"
-        />
-
-        <button
-          v-if="searchName"
-          type="button"
-          class="search-clear"
-          @click="searchName = ''"
-          aria-label="Suche löschen"
-        >
-          ×
-        </button>
-      </div>
-
-      <!-- Filter Toggle -->
+    <!-- LINKS: Buttons + Filter -->
+    <aside class="left">
       <button
         class="filter-toggle-btn"
         type="button"
@@ -300,9 +279,9 @@ async function deleteEntry(id: number) {
         {{ showFilters ? "Filter ausblenden" : "Filter anzeigen" }}
       </button>
 
-      <!-- FILTERLEISTE -->
       <div v-if="showFilters" class="filter-bar">
         <div class="filter-row">
+          <!-- deine Labels/Selects 그대로 lassen -->
           <label>
             Geburtsmonat:
             <select v-model="selectedMonth">
@@ -317,9 +296,7 @@ async function deleteEntry(id: number) {
             Alter:
             <select v-model="selectedAge">
               <option :value="null">Alle Alter</option>
-              <option v-for="a in ageOptions" :key="a" :value="a">
-                {{ a }}
-              </option>
+              <option v-for="a in ageOptions" :key="a" :value="a">{{ a }}</option>
             </select>
           </label>
 
@@ -327,9 +304,7 @@ async function deleteEntry(id: number) {
             Lieblingsessen:
             <select v-model="selectedFood">
               <option :value="null">Alle Essen</option>
-              <option v-for="f in foodOptions" :key="f" :value="f">
-                {{ f }}
-              </option>
+              <option v-for="f in foodOptions" :key="f" :value="f">{{ f }}</option>
             </select>
           </label>
 
@@ -337,9 +312,7 @@ async function deleteEntry(id: number) {
             Lieblingsfarbe:
             <select v-model="selectedColor">
               <option :value="null">Alle Farben</option>
-              <option v-for="c in colorOptions" :key="c" :value="c">
-                {{ c }}
-              </option>
+              <option v-for="c in colorOptions" :key="c" :value="c">{{ c }}</option>
             </select>
           </label>
 
@@ -347,9 +320,7 @@ async function deleteEntry(id: number) {
             Hobby:
             <select v-model="selectedHobby">
               <option :value="null">Alle Hobbys</option>
-              <option v-for="h in hobbyOptions" :key="h" :value="h">
-                {{ h }}
-              </option>
+              <option v-for="h in hobbyOptions" :key="h" :value="h">{{ h }}</option>
             </select>
           </label>
 
@@ -357,33 +328,27 @@ async function deleteEntry(id: number) {
             Traumberuf:
             <select v-model="selectedDreamJob">
               <option :value="null">Alle Traumberufe</option>
-              <option v-for="d in dreamJobOptions" :key="d" :value="d">
-                {{ d }}
-              </option>
+              <option v-for="d in dreamJobOptions" :key="d" :value="d">{{ d }}</option>
             </select>
           </label>
 
-          <button class="reset-btn" type="button" @click="resetFilter">
+          <button class="reset-btn" type="button" @click="resetFilter()">
             Filter zurücksetzen
           </button>
         </div>
       </div>
-    </div>
+    </aside>
 
-    <!-- CONTENT BEREICH (RECHTS) -->
-    <div class="content">
-      <!-- Loading / Error / Empty State -->
+    <!-- MITTE: Buch zentriert -->
+    <main class="center">
       <p v-if="loading" class="empty">Lädt…</p>
       <p v-else-if="error" class="empty">Fehler: {{ error }}</p>
 
-      <!-- wirklich keine Einträge insgesamt -->
       <p v-else-if="pages.length === 0" class="empty big">
         Sie haben noch keine Einträge.
       </p>
 
-      <!-- Rest nur anzeigen, wenn es Einträge gibt -->
       <template v-else>
-        <!-- Buch-Ansicht -->
         <template v-if="!isFilterActive">
           <BookCover v-if="pageIndex < 0" />
 
@@ -407,7 +372,6 @@ async function deleteEntry(id: number) {
           </div>
         </template>
 
-        <!-- Listenansicht -->
         <template v-else>
           <p v-if="filteredPages.length === 0" class="empty">
             Keine Einträge gefunden.
@@ -426,33 +390,60 @@ async function deleteEntry(id: number) {
           </div>
         </template>
       </template>
-    </div>
+    </main>
+
+    <!-- RECHTS: Suchleiste -->
+    <aside class="right">
+      <div class="search-wrapper">
+        <input
+          v-model="searchName"
+          type="text"
+          placeholder="Nach Freund suchen…"
+          class="search-input"
+        />
+
+        <button
+          v-if="searchName"
+          type="button"
+          class="search-clear"
+          @click="searchName = ''"
+          aria-label="Suche löschen"
+        >
+          ×
+        </button>
+      </div>
+    </aside>
   </div>
 </template>
+
 
 
 
 <style scoped>
 
 .layout {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 260px minmax(520px, 1fr) 260px;
   gap: 40px;
-  padding-left: 20px;
+  padding: 0 20px;
+  align-items: start;
 }
 
-/* --- Sidebar links (Suche + Filter) --- */
-.sidebar {
+.left {
   width: 260px;
-  flex-shrink: 0;
 }
 
-
-/* --- Inhalt rechts --- */
-.content {
-  flex: 1;
-  min-width: 0;
+.center {
+  display: grid;
+  justify-items: center; /* <- zentriert den Buchblock */
 }
+
+.right {
+  width: 260px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 
 
 /* --- Filterbar --- */
