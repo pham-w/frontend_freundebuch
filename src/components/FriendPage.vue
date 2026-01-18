@@ -6,7 +6,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 // Props holen
-const props = defineProps<{ person: any; visible: boolean }>();
+const props = defineProps<{ person: any; visible: boolean; isFavorite?: boolean}>();
 function calcAge(birthDate: string | null | undefined): number | null {
   if (!birthDate) return null;
 
@@ -30,6 +30,7 @@ const displayAge = computed(() => {
 // Events nach oben (an FriendBook) schicken
 const emit = defineEmits<{
   (e: "deleted", id: number): void;
+  (e: "toggle-favorite"): void;
 }>();
 
 function editEntry(id: number) {
@@ -43,24 +44,26 @@ function deleteEntry() {
 
 <template>
   <div v-show="visible" class="page">
-    <h2>{{ person.name }}</h2>
+    <h2>{{ props.person.name }}</h2>
 
     <ul>
       <li>Alter: {{ displayAge ?? "—" }}</li>
-      <li>Geburtsdatum: {{ person.geburtsdatum }}</li>
-      <li>Lieblingsfarbe: {{ person.favColor }}</li>
-      <li>Hobby: {{ person.hobby }}</li>
-      <li>Lieblingsessen: {{ person.favFood }}</li>
-      <li>Traumberuf: {{ person.dreamJob }}</li>
+      <li>Geburtsdatum: {{ props.person.geburtsdatum }}</li>
+      <li>Lieblingsfarbe: {{ props.person.favColor }}</li>
+      <li>Hobby: {{ props.person.hobby }}</li>
+      <li>Lieblingsessen: {{ props.person.favFood }}</li>
+      <li>Traumberuf: {{ props.person.dreamJob }}</li>
     </ul>
 
     <div class="buttons">
-      <!-- ✏️ Bearbeiten -->
-      <button class="edit-btn" @click="editEntry(person.id)">
+      <button class="edit-btn" @click="editEntry(props.person.id)">
         ✏️ Eintrag bearbeiten
       </button>
 
-      <!-- 🗑 Löschen -->
+      <button class="fav-star" @click.stop="emit('toggle-favorite')">
+        {{ props.isFavorite ? "⭐" : "☆" }}
+      </button>
+
       <button class="delete-btn" @click="deleteEntry">
         🗑 Eintrag löschen
       </button>
@@ -77,6 +80,20 @@ function deleteEntry() {
   background: #fff;
   color: #181818;
   position: relative;
+}
+
+.fav-star {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+.fav-star:hover {
+  transform: scale(1.08);
 }
 
 .buttons {

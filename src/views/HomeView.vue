@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import FriendBook from "@/components/FriendBook.vue";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
 
 const router = useRouter();
+const showOnlyFavs = ref(false);
+
 
 </script>
 
@@ -13,9 +16,12 @@ const router = useRouter();
         <button class="logout-btn" @click="router.push('/new')">
           ➕ Neuer Eintrag
         </button>
+        <button class="fav-btn" @click="showOnlyFavs = !showOnlyFavs">
+          {{ showOnlyFavs ? "⭐ Favoriten (an)" : "☆ Favoriten" }}
+        </button>
       </div>
     </div>
-    <FriendBook />
+    <FriendBook :showOnlyFavs="showOnlyFavs" />
   </main>
 </template>
 
@@ -56,4 +62,17 @@ const router = useRouter();
   align-items: center;
   gap: 10px;
 }
+.fav-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 0;
+  background: #111827;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fav-btn:hover {
+  opacity: 0.92;
+}
+
 </style>

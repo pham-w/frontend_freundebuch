@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import FriendPage from "./FriendPage.vue";
 import BookCover from "./BookCover.vue";
 import BookControls from "./BookControls.vue";
-
+import { getFavoriteIds, toggleFavoriteId } from "@/services/favoritesStore";
 import { API_BASE } from "@/services/api";
 import { authUser } from "@/services/authStore";
 
@@ -11,7 +11,7 @@ const pages = ref<any[]>([]);
 const pageIndex = ref(-1);
 const loading = ref(true);
 const error = ref<string | null>(null);
-
+const props = defineProps<{ showOnlyFavs?: boolean }>();
 const showFilters = ref(false);
 
 // Suchleiste
@@ -24,6 +24,22 @@ const selectedColor = ref<string | null>(null);
 const selectedAge = ref<string | null>(null);
 const selectedHobby = ref<string | null>(null);
 const selectedDreamJob = ref<string | null>(null);
+
+const favoriteIds = ref<number[]>([]);
+
+const favoriteSet = computed(() => new Set(favoriteIds.value));
+
+function refreshFavorites() {
+  const uid = authUser.value?.id;
+  favoriteIds.value = uid ? getFavoriteIds(uid) : [];
+}
+
+function toggleFav(pageId: number) {
+  const uid = authUser.value?.id;
+  if (!uid) return;
+  favoriteIds.value = toggleFavoriteId(uid, pageId);
+}
+
 
 // Ist irgendein Filter oder die Suche aktiv?
 const isFilterActive = computed(
@@ -100,6 +116,8 @@ const dreamJobOptions = computed(() => unique(pages.value.map((p) => p.dreamJob)
 // Kombinierter Filter + Namenssuche
 const filteredPages = computed(() => {
   return pages.value.filter((p) => {
+    //Favoriten
+    if (props.showOnlyFavs && !favoriteSet.value.has(p.id)) return false;
     // Geburtsmonat
     if (selectedMonth.value) {
       if (!p.geburtsdatum) return false;
@@ -175,6 +193,7 @@ async function loadPages() {
     if (!uid) {
       pages.value = [];
       pageIndex.value = -1;
+      refreshFavorites();
       return;
     }
 
@@ -183,7 +202,7 @@ async function loadPages() {
 
     const data = await res.json();
     pages.value = data.sort((a: any, b: any) => a.id - b.id);
-
+    refreshFavorites();
     pageIndex.value = pages.value.length > 0 ? 0 : -1;
   } catch (e: any) {
     error.value = e?.message ?? String(e);
@@ -197,6 +216,7 @@ watch(
   authUser,
   () => {
     pageIndex.value = -1;
+    refreshFavorites();
     loadPages();
   },
   { immediate: true }
@@ -374,6 +394,8 @@ async function deleteEntry(id: number) {
             :key="p.id"
             :person="p"
             :visible="i === pageIndex"
+            :isFavorite="favoriteSet.has(p.id)"
+            @toggle-favorite="toggleFav(p.id)"
             @deleted="deleteEntry"
           />
         </div>
@@ -391,6 +413,8 @@ async function deleteEntry(id: number) {
             :key="p.id"
             :person="p"
             :visible="true"
+            :isFavorite="favoriteSet.has(p.id)"
+            @toggle-favorite="toggleFav(p.id)"
             @deleted="deleteEntry"
           />
         </div>
