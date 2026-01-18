@@ -73,10 +73,11 @@ function deleteEntry() {
 
 <style scoped>
 .page {
+  width: min(860px, 92vw);
+  margin: 0 auto;
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 20px;
-  margin: 10px;
   background: #fff;
   color: #181818;
   position: relative;
@@ -100,7 +101,10 @@ function deleteEntry() {
   display: flex;
   gap: 8px;
   margin-top: 12px;
+  flex-wrap: wrap;      /* NEU */
+  justify-content: flex-start;
 }
+
 
 /* Bearbeiten-Button */
 .edit-btn {

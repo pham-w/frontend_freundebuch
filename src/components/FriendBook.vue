@@ -11,11 +11,24 @@ const pages = ref<any[]>([]);
 const pageIndex = ref(-1);
 const loading = ref(true);
 const error = ref<string | null>(null);
-const props = defineProps<{ showOnlyFavs?: boolean }>();
-const showFilters = ref(false);
+const props = defineProps<{ showOnlyFavs?: boolean; search?: string; showFilters?: boolean; }>();
 
-// Suchleiste
-const searchName = ref("");
+const emit = defineEmits<{
+  (e: "update:search", value: string): void;
+  (e: "update:showFilters", value: boolean): void;
+}>();
+
+const searchName = computed<string>({
+  get: () => props.search ?? "",
+  set: (v) => emit("update:search", v),
+});
+
+const showFilters = computed<boolean>({
+  get: () => props.showFilters ?? false,
+  set: (v) => emit("update:showFilters", v),
+});
+
+
 
 // -------------------- FILTER: einzelne Felder --------------------
 const selectedMonth = ref<string | null>(null);
@@ -180,7 +193,7 @@ function resetFilter() {
   selectedAge.value = null;
   selectedHobby.value = null;
   selectedDreamJob.value = null;
-  searchName.value = "";
+  emit("update:search", "");
 }
 
 // -------------------- DATA LOAD (AUTH) --------------------
@@ -268,20 +281,11 @@ async function deleteEntry(id: number) {
 </script>
 
 <template>
-  <div class="layout">
-    <!-- LINKS: Buttons + Filter -->
-    <aside class="left">
-      <button
-        class="filter-toggle-btn"
-        type="button"
-        @click="showFilters = !showFilters"
-      >
-        {{ showFilters ? "Filter ausblenden" : "Filter anzeigen" }}
-      </button>
-
-      <div v-if="showFilters" class="filter-bar">
+  <div class="shell">
+    <!-- Filter-Overlay (schiebt nichts) -->
+    <aside v-if="showFilters" class="filters">
+      <div class="filter-bar">
         <div class="filter-row">
-          <!-- deine Labels/Selects 그대로 lassen -->
           <label>
             Geburtsmonat:
             <select v-model="selectedMonth">
@@ -332,87 +336,64 @@ async function deleteEntry(id: number) {
             </select>
           </label>
 
-          <button class="reset-btn" type="button" @click="resetFilter()">
+          <button class="btn btn-dark" type="button" @click="resetFilter()">
             Filter zurücksetzen
           </button>
         </div>
       </div>
     </aside>
 
-    <!-- MITTE: Buch zentriert -->
-    <main class="center">
+
+    <!-- Zentrum: Buch bleibt IMMER mittig -->
+    <main class="stage">
       <p v-if="loading" class="empty">Lädt…</p>
       <p v-else-if="error" class="empty">Fehler: {{ error }}</p>
 
-      <p v-else-if="pages.length === 0" class="empty big">
-        Sie haben noch keine Einträge.
-      </p>
-
       <template v-else>
-        <template v-if="!isFilterActive">
-          <BookCover v-if="pageIndex < 0" />
+        <div class="book">
+          <template v-if="!isFilterActive">
+            <BookCover v-if="pageIndex < 0" />
 
-          <div v-if="filteredPages.length" class="book-page-wrapper">
-            <BookControls
-              :hasPrev="pageIndex > 0"
-              :hasNext="pageIndex < filteredPages.length - 1"
-              @prev="prev"
-              @next="next"
-            />
+            <div v-if="filteredPages.length" class="book-page-wrapper">
+              <BookControls
+                :hasPrev="pageIndex > 0"
+                :hasNext="pageIndex < filteredPages.length - 1"
+                @prev="prev"
+                @next="next"
+              />
 
-            <FriendPage
-              v-for="(p, i) in filteredPages"
-              :key="p.id"
-              :person="p"
-              :visible="i === pageIndex"
-              :isFavorite="favoriteSet.has(p.id)"
-              @toggle-favorite="toggleFav(p.id)"
-              @deleted="deleteEntry"
-            />
-          </div>
-        </template>
+              <FriendPage
+                v-for="(p, i) in filteredPages"
+                :key="p.id"
+                :person="p"
+                :visible="i === pageIndex"
+                :isFavorite="favoriteSet.has(p.id)"
+                @toggle-favorite="toggleFav(p.id)"
+                @deleted="deleteEntry"
+              />
+            </div>
+          </template>
 
-        <template v-else>
-          <p v-if="filteredPages.length === 0" class="empty">
-            Keine Einträge gefunden.
-          </p>
+          <template v-else>
+            <p v-if="filteredPages.length === 0" class="empty">
+              Keine Einträge gefunden.
+            </p>
 
-          <div class="list" v-else>
-            <FriendPage
-              v-for="p in filteredPages"
-              :key="p.id"
-              :person="p"
-              :visible="true"
-              :isFavorite="favoriteSet.has(p.id)"
-              @toggle-favorite="toggleFav(p.id)"
-              @deleted="deleteEntry"
-            />
-          </div>
-        </template>
+            <div class="list" v-else>
+              <FriendPage
+                v-for="p in filteredPages"
+                :key="p.id"
+                :person="p"
+                :visible="true"
+                :isFavorite="favoriteSet.has(p.id)"
+                @toggle-favorite="toggleFav(p.id)"
+                @deleted="deleteEntry"
+              />
+            </div>
+          </template>
+        </div>
       </template>
     </main>
-
-    <!-- RECHTS: Suchleiste -->
-    <aside class="right">
-      <div class="search-wrapper">
-        <input
-          v-model="searchName"
-          type="text"
-          placeholder="Nach Freund suchen…"
-          class="search-input"
-        />
-
-        <button
-          v-if="searchName"
-          type="button"
-          class="search-clear"
-          @click="searchName = ''"
-          aria-label="Suche löschen"
-        >
-          ×
-        </button>
-      </div>
-    </aside>
   </div>
 </template>
 
@@ -421,38 +402,55 @@ async function deleteEntry(id: number) {
 
 <style scoped>
 
-.layout {
-  display: grid;
-  grid-template-columns: 260px minmax(520px, 1fr) 260px;
-  gap: 40px;
-  padding: 0 20px;
-  align-items: start;
+/* Grundfläche */
+.shell {
+  position: relative;
+  width: 100%;
 }
 
-.left {
-  width: 260px;
-}
-
-.center {
-  display: grid;
-  justify-items: center; /* <- zentriert den Buchblock */
-}
-
-.right {
-  width: 260px;
+/* Zentrum: Buch bleibt IMMER mittig */
+.stage {
+  width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  padding: 24px 20px 40px;
 }
 
+.book {
+  width: min(1200px, 96vw);
+}
 
+/* Wrapper für Controls + Seite */
+.book-page-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 
-/* --- Filterbar --- */
+/* LISTE */
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+/* Filter Overlay */
+.filters {
+  position: fixed;
+  left: 24px;
+  top: 140px; /* unter Topbar */
+  z-index: 50;
+  width: 240px;
+}
+
 .filter-bar {
   width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  opacity: 0.9;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
 }
 
 .filter-row {
@@ -461,54 +459,59 @@ async function deleteEntry(id: number) {
   gap: 12px;
 }
 
-/* --- Suchfeld --- */
-.search-wrapper {
-  position: relative;
-  width: 100%;
-  margin-bottom: 10px;
+.filter-row label {
+  color: #e5e7eb;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.search-input {
-  width: 100%;
-  padding: 6px 30px 6px 12px;
-  border-radius: 12px;
-  border: 1px solid #fff;
-  background: #f9fafb;
-}
-
-.search-clear {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: 0;
-  font-size: 18px;
+.filter-row select {
+  height: 36px;
+  border-radius: 10px;
+  background: #020617;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0 10px;
   cursor: pointer;
 }
 
-
-/* --- Buchseite --- */
-.book-page-wrapper {
-  position: relative;
-  margin: 20px auto;
-  max-width: 520px;
+.filter-row select:focus {
+  outline: none;
+  border-color: #2563eb;
 }
 
+/* Buttons (einheitlich) */
+.btn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
 
-/* --- Liste --- */
-.list {
-  display: grid;
-  gap: 12px;
+.btn-dark {
+  background: #111827;
+  color: #ffffff;
+}
+
+.btn-dark:hover {
+  opacity: 0.92;
+}
+
+.filter-row .btn {
+  margin-top: 8px;
 }
 
 .empty {
   opacity: 0.7;
 }
-.empty.big {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 1.05rem;
-}
-
 </style>

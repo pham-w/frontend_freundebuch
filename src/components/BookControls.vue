@@ -41,11 +41,12 @@ defineEmits(["prev", "next"])
   z-index: 10;
 }
 
-.left {
-  left: -80px;
+.left  { left: -56px; }
+.right { right: -56px; }
+
+@media (max-width: 900px) {
+  .left { left: 8px; }
+  .right { right: 8px; }
 }
 
-.right {
-  right: -80px;
-}
 </style>
