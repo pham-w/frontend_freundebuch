@@ -119,7 +119,7 @@ function deleteEntry() {
 }
 
 .edit-btn:hover {
-  background: #111827;
+  background: #852736;
   color: white;
 }
 

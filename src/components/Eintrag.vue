@@ -5,7 +5,7 @@ import { authUser } from "@/services/authStore";
 
 type FriendPayload = {
   name: string;
-  geburtsdatum: string; // YYYY-MM-DD
+  geburtsdatum: string;
   favColor: string;
   hobby: string;
   favFood: string;
@@ -92,7 +92,7 @@ async function submit() {
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
-    await res.json(); // gespeicherten Datensatz (optional)
+    await res.json();
 
     success.value = true;
 
@@ -116,7 +116,6 @@ async function submit() {
 
 <template>
   <form class="card" @submit.prevent="submit">
-    <h2>Neuen Freund anlegen</h2>
 
     <label>
       Name
@@ -151,7 +150,7 @@ async function submit() {
 
     <label>
       Traumberuf
-      <input v-model.trim="form.dreamJob" type="text" placeholder="z.B. Dev" />
+      <input v-model.trim="form.dreamJob" type="text" placeholder="z.B. Bäcker" />
     </label>
 
     <button type="submit" :disabled="loading">
@@ -167,6 +166,7 @@ async function submit() {
 .card {
   display: grid;
   gap: 10px;
+  width: 100%;
   max-width: 520px;
   padding: 16px;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -191,7 +191,7 @@ button {
   padding: 10px 14px;
   border-radius: 12px;
   border: 0;
-  background: #111827;
+  background: #852736;
   color: white;
   font-weight: 600;
   cursor: pointer;

@@ -64,7 +64,7 @@ const showFilters = ref(false);
   padding: 10px 14px;
   border-radius: 12px;
   border: 0;
-  background: #111827;
+  background: #852736;
   color: white;
   font-weight: 600;
   cursor: pointer;

@@ -99,38 +99,120 @@ async function save() {
 </script>
 
 <template>
-  <main style="padding: 20px; display: grid; gap: 12px;">
-    <button @click="router.push('/')" style="width: fit-content;">
-      ← Zurück
-    </button>
+  <main class="page">
+    <section class="wrap">
+      <h1>Eintrag bearbeiten</h1>
 
-    <h1 style="margin: 0;">Eintrag bearbeiten (ID: {{ id }})</h1>
+      <p v-if="loading">Lade Daten…</p>
+      <p v-else-if="error" class="error">Fehler: {{ error }}</p>
 
-    <p v-if="loading">Lade Daten…</p>
-    <p v-else-if="error">Fehler: {{ error }}</p>
+      <form v-else class="card" @submit.prevent="save">
+        <label>
+          Name
+          <input v-model.trim="form.name" type="text" placeholder="z.B. Alex" />
+        </label>
 
-    <form
-      v-else
-      @submit.prevent="save"
-      style="display:grid; gap:10px; max-width:520px;"
-    >
-      <label> Name <input v-model.trim="form.name" /> </label>
-      <label>
-        Alter (automatisch)
-        <input :value="computedAge" type="number" disabled />
-      </label>
-      <label>
-        Geburtsdatum
-        <input v-model="form.geburtsdatum" type="date" :max="today" />
-      </label>
-      <label> Lieblingsfarbe <input v-model.trim="form.favColor" /> </label>
-      <label> Hobby <input v-model.trim="form.hobby" /> </label>
-      <label> Lieblingsessen <input v-model.trim="form.favFood" /> </label>
-      <label> Traumberuf <input v-model.trim="form.dreamJob" /> </label>
+        <label>
+          Alter (automatisch)
+          <input :value="computedAge" type="number" disabled />
+        </label>
 
-      <button type="submit" :disabled="saving">
-        {{ saving ? "Speichere…" : "Änderungen speichern" }}
-      </button>
-    </form>
+        <label>
+          Geburtsdatum
+          <input v-model="form.geburtsdatum" type="date" :max="today" />
+        </label>
+
+        <label>
+          Lieblingsfarbe
+          <input v-model.trim="form.favColor" type="text" placeholder="z.B. Blau" />
+        </label>
+
+        <label>
+          Hobby
+          <input v-model.trim="form.hobby" type="text" placeholder="z.B. Lesen" />
+        </label>
+
+        <label>
+          Lieblingsessen
+          <input v-model.trim="form.favFood" type="text" placeholder="z.B. Pizza" />
+        </label>
+
+        <label>
+          Traumberuf
+          <input v-model.trim="form.dreamJob" type="text" placeholder="z.B. Bäcker" />
+        </label>
+
+        <button type="submit" :disabled="saving">
+          {{ saving ? "Speichere…" : "Änderungen speichern" }}
+        </button>
+      </form>
+    </section>
   </main>
 </template>
+
+<style scoped>
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  padding-top: 0; /* weiter nach oben = kleiner machen */
+}
+
+.wrap {
+  width: 100%;
+  max-width: 620px;
+  display: grid;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.card {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  background: white;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #181818;
+}
+
+input {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+button {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 0;
+  background: #852736;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.error {
+  color: #b91c1c;
+  margin: 0;
+}
+</style>

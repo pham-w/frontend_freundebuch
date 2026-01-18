@@ -42,7 +42,7 @@ const showLogout = computed(() => {
           <Logo />
         </RouterLink>
         <span v-if="authUser" class="greeting">
-          Hallo, {{ username }}!
+          ⋆˚꩜｡Hallo, {{ username }} ⋆˚꩜｡
         </span>
       </div>
 
@@ -73,7 +73,7 @@ const showLogout = computed(() => {
 
 .app-header {
   width: 100%;
-  padding: 30px 50px 50px;
+  padding: 30px 50px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -111,13 +111,13 @@ const showLogout = computed(() => {
   font-size: 15px;
   border-radius: 12px;
   border: none;
-  background-color: #e11d48;
-  color: white;
+  background-color: #852736;
+  color: #e9e5de;
   cursor: pointer;
 }
 
 .logout-btn:hover {
-  background-color: #be123c;
+  background-color: #811b33;
 }
 
 .app-main {
