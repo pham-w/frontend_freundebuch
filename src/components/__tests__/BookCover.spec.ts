@@ -15,7 +15,7 @@ describe("BookCover.vue", () => {
 
     // Titel vorhanden und korrekt
     const h1 = wrapper.get("h1");
-    expect(h1.text()).toBe("Mein Freundebuch");
+    expect(h1.text()).toBe("⋆˚꩜｡Mein Freundebuch⋆˚꩜｡");
 
     // Hinweis-Punkte (.dot) vorhanden (3 Stück)
     const hint = wrapper.get(".hint");
