@@ -40,7 +40,7 @@ function close() {
 .splash {
   position: fixed;
   inset: 0;
-  background: #192b51;
+  background: #461d3a;
   display: grid;
   place-items: center;
   z-index: 9999;

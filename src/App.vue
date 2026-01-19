@@ -111,13 +111,13 @@ const showLogout = computed(() => {
   font-size: 15px;
   border-radius: 12px;
   border: none;
-  background-color: #852736;
+  background-color: #732a53;
   color: #e9e5de;
   cursor: pointer;
 }
 
 .logout-btn:hover {
-  background-color: #811b33;
+  background-color: #461d3a;
 }
 
 .app-main {

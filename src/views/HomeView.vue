@@ -15,7 +15,7 @@ const showFilters = ref(false);
   <main class="page">
     <div class="topbar">
       <div class="left">
-        <button class="btn" @click="router.push('/new')">➕ Neuer Eintrag</button>
+        <button class="btn" @click="router.push('/new')">✚ Neuer Eintrag</button>
 
         <button class="btn" @click="showOnlyFavs = !showOnlyFavs">
           {{ showOnlyFavs ? "⭐ Favoriten (an)" : "☆ Favoriten" }}

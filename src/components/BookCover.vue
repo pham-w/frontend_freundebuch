@@ -3,7 +3,7 @@
     <div class="inner">
       <div class="badge">Mein Freundebuch</div>
 
-      <h1>Mein Freundebuch</h1>
+      <h1>⋆˚꩜｡Mein Freundebuch⋆˚꩜｡</h1>
 
       <div class="hint">
         <span class="dot"></span>
@@ -139,3 +139,5 @@ p span {
   }
 }
 </style>
+<script setup lang="ts">
+</script>

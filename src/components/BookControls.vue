@@ -30,8 +30,8 @@ defineEmits(["prev", "next"])
   transform: translateY(-50%);
   width: 44px;
   height: 44px;
-  background: #111827;
-  color: #ffffff;
+  background-color: #852736;
+  color: white;
   border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 10px 26px rgba(0,0,0,0.45);
   border-radius: 999px;

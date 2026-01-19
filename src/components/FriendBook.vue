@@ -488,7 +488,7 @@ async function deleteEntry(id: number) {
   opacity: 0.9;
   padding: 14px;
   border-radius: 16px;
-  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  background: #852736;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
 }
@@ -511,7 +511,7 @@ async function deleteEntry(id: number) {
 .filter-row select {
   height: 36px;
   border-radius: 10px;
-  background: #020617;
+  background: #462328; /*filter-auswahlfeld*/
   color: #e5e7eb;
   border: 1px solid rgba(255, 255, 255, 0.14);
   padding: 0 10px;
@@ -539,7 +539,7 @@ async function deleteEntry(id: number) {
 }
 
 .btn-dark {
-  background: #111827;
+  background: #462328; /*filter zurücksetzen button*/
   color: #ffffff;
 }
 
